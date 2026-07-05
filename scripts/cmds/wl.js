@@ -1,12 +1,12 @@
 const { config } = global.GoatBot;
 const { writeFileSync } = require("fs-extra");
-const { getStreamFromURL } = global.utils;
+const moment = require("moment-timezone");
 
 module.exports = {
 	config: {
 		name: "wl",
-		version: "2.5",
-		author: "siyam",
+		version: "2.0",
+		author: "MR_FARHAN + SIYAM EDIT",
 		countDown: 5,
 		role: 2,
 		longDescription: {
@@ -24,11 +24,11 @@ module.exports = {
 
 	langs: {
 		en: {
-			added: "───────────────\n» ✅ 𝗔𝗱𝗱𝗲𝗱:\n%1\n───────────────\n👑 𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 ➜ 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑",
-			removed: "───────────────\n» ✅ 𝗥𝗲𝗺𝗼𝘃𝗲𝗱:\n%1\n───────────────\n👑 𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 ➜ 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑",
-			listAdmin: "───────────────\n» 👑 𝗪𝗵𝗶𝘁𝗲𝗟𝗶𝘀𝘁 𝗨𝘀𝗲𝗿𝘀:\n%1\n───────────────\n👑 𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 ➜ 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑",
-			missingIdAdd: "───────────────\n» ⚠️ 𝗚𝗶𝘃𝗲 𝗜𝗗 𝗼𝗿 𝘁𝗮𝗴\n───────────────\n👑 𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 ➜ 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑",
-			missingIdRemove: "───────────────\n» ⚠️ 𝗚𝗶𝘃𝗲 𝗜𝗗 𝗼𝗿 𝘁𝗮𝗴\n───────────────\n👑 𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 ➜ 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑"
+			added: "✅ Added:\n%1",
+			removed: "✅ Removed:\n%1",
+			listAdmin: "👑 WhiteList Users:\n%1",
+			missingIdAdd: "⚠️ Give ID or tag",
+			missingIdRemove: "⚠️ Give ID or tag"
 		}
 	},
 
@@ -118,23 +118,24 @@ module.exports = {
 				config.whiteListMode.enable = true;
 				writeFileSync(global.client.dirConfig, JSON.stringify(config, null, 2));
 
-				const imgUrl = "https://files.catbox.moe/q76rmd.jpg";
-				let attachment;
-				try {
-					attachment = await getStreamFromURL(imgUrl);
-				} catch (e) {
-					console.log("Image load failed:", e.message);
-				}
+				const time = moment().tz("Asia/Dhaka").format("hh:mm A");
+				const date = moment().tz("Asia/Dhaka").format("DD MMMM YYYY");
 
-				const msg = {
-					body: `───────────────
+				const msg = `
+👑  𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍  👑
+
+𝆠፝𝐖𝐇𝐈𝐓𝐄 𝐋𝐈𝐒𝐓 𝐌𝐎𝐃𝐄 𝐄𝐍𝐀𝐁𝐋𝐄𝐃
+
 🔐  𝆠፝𝐀𝐂𝐂𝐄𝐒𝐒 :
    𝆠፝🐸এখন শুধু আমার বস সিয়াম🪬
    𝆠፝বট ব্যবহার করতে পারবে 👑
-───────────────`
-				};
 
-				if (attachment) msg.attachment = attachment;
+📅  𝆠፝𝐃𝐚𝐭𝐞 : ${date}
+⏰  𝆠፝𝐓𝐢𝐦𝐞 : ${time}
+
+👑  𝆠፝𝐍𝐈𝐉𝐇𝐔𝐌 𝐂𝐇𝐀𝐓 𝐁𝐎𝐓  👑
+`;
+
 				return message.reply(msg);
 			}
 
@@ -143,23 +144,24 @@ module.exports = {
 				config.whiteListMode.enable = false;
 				writeFileSync(global.client.dirConfig, JSON.stringify(config, null, 2));
 
-				const imgUrl = "https://files.catbox.moe/5e00ob.jpg";
-				let attachment;
-				try {
-					attachment = await getStreamFromURL(imgUrl);
-				} catch (e) {
-					console.log("Image load failed:", e.message);
-				}
+				const time = moment().tz("Asia/Dhaka").format("hh:mm A");
+				const date = moment().tz("Asia/Dhaka").format("DD MMMM YYYY");
 
-				const msg = {
-					body: `───────────────
+				const msg = `
+👑  𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍  👑
+
+𝆠፝𝐖𝐇𝐈𝐓𝐄 𝐋𝐈𝐒𝐓 𝐌𝐎𝐃𝐄 𝐃𝐈𝐒𝐀𝐁𝐋𝐄𝐃
+
 🌐  𝆠፝𝐀𝐂𝐂𝐄𝐒𝐒 :
-   𝆠፝এখন সবাই বট ব্যবহার
+   𝆠፝এখন সবাই বট ব্যবহার🪬
    𝆠፝করতে পারবে 🎉
-───────────────`
-				};
 
-				if (attachment) msg.attachment = attachment;
+📅  𝆠፝𝐃𝐚𝐭𝐞 : ${date}
+⏰  𝆠፝𝐓𝐢𝐦𝐞 : ${time}
+
+👑  𝆠፝𝐍𝐈𝐉𝐇𝐔𝐌 𝐂𝐇𝐀𝐓 𝐁𝐎𝐓  👑
+`;
+
 				return message.reply(msg);
 			}
 
