@@ -1,93 +1,154 @@
+const fs = require("fs-extra");
+const path = require("path");
+const https = require("https");
+
 module.exports = {
   config: {
     name: "help",
-    aliases: ["he", "hall"],
-    version: "4.5.0",
-    author: "SIYAM",
-    countDown: 3,
-    role: 0,
-    shortDescription: "GOAT BOT V2 Information",
-    longDescription: "Shows GOAT BOT V2 information and contact details exclusively.",
-    category: "info",
-    guide: {
-      en: "{pn}"
-    }
+    aliases: ["commands"], // 'menu' সরানো হয়েছে কনফ্লিক্ট এড়ানোর জন্য
+    version: "6.3",
+    author: "EryXenX",
+    shortDescription: "Show all commands",
+    longDescription: "Show all commands in clean UI",
+    category: "system",
+    guide: "{pn}help [command name]"
   },
 
-  onStart: async function () {},
+  onStart: async function ({ message, args, prefix }) {
+    const allCommands = global.GoatBot.commands;
 
-  onChat: async function ({ event, message }) {
-    if (!event.body || typeof event.body !== "string") return;
-    
-    const input = event.body.trim();
-    
-    // 🎯 স্ট্রাকচার্ড কন্ডিশন: প্রিফিক্স সহ শুধু মূল নাম বা এলিয়াস একা থাকলে কাজ করবে
-    if (input === ",help" || input === ",he" || input === ",hall") {
-      return message.reply(`
-👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
-━━━━━━━━━━━━━━━━━━
-🐔 𝐂𝐇𝐔𝐃𝐈 𝐋𝐈𝐒𝐓 🐔
+    const fancyFont = (str) =>
+      str.replace(/[A-Za-z]/g, (c) => {
+        const map = {
+          A:"𝐀",B:"𝐁",C:"𝐂",D:"𝐃",E:"𝐄",F:"𝐅",G:"𝐆",H:"𝐇",
+          I:"𝐈",J:"𝐉",K:"𝐊",L:"𝐋",M:"𝐌",N:"𝐍",O:"𝐎",P:"𝐏",
+          Q:"𝐐",R:"𝐑",S:"𝐒",T:"𝐓",U:"𝐔",V:"𝐕",W:"𝐖",X:"𝐗",
+          Y:"𝐘",Z:"𝐙",
+          a:"𝐚",b:"𝐛",c:"𝐜",d:"𝐝",e:"𝐞",f:"𝐟",g:"𝐠",h:"𝐡",
+          i:"𝐢",j:"𝐣",k:"𝐤",l:"𝐥",m:"𝐦",n:"𝐧",o:"𝐨",p:"𝐩",
+          q:"𝐪",r:"𝐫",s:"𝐬",t:"𝐭",u:"🇺",v:"𝐯",w:"𝐰",x:"𝐱",
+          y:"𝐲",z:"𝐳"
+        };
+        return map[c] || c;
+      });
 
-➤ ,𝐌𝐔𝐑𝐆𝐈 • ,𝐌𝐔𝐑𝐆𝐈𝟐 • ,𝐒𝐈𝐘𝐀𝐌𝟓
-➤ ,𝐌𝐘𝐆𝐈𝐑𝐋 • ,𝐏𝐀𝐈𝐑 • ,𝐏𝐀𝐈𝐑𝟐
-➤ ,𝐏𝐀𝐈𝐑𝟑 •  • ,𝐌𝐀𝐑𝐑𝐈𝐄𝐃
-➤ ,𝐋𝐎𝐕 • ,𝐋𝐎𝐕𝐄 • ,𝐍𝐄𝐄𝐃𝐆𝐅
+    const categoryFont = (str) =>
+      str.split("").map(c => {
+        const map = {
+          A:"𝐀",B:"𝐁",C:"𝐂",D:"𝐃",E:"𝐄",F:"𝐅",G:"𝐆",H:"𝐇",
+          I:"𝐈",J:"𝐉",K:"𝐊",L:"𝐋",M:"𝐌",N:"𝐍",O:"𝐎",P:"𝐏",
+          Q:"𝐐",R:"𝐑",S:"𝐒",T:"𝐓",U:"𝐔",V:"𝐕",W:"𝐖",X:"𝐗",
+          Y:"𝐘",Z:"𝐙"
+        };
+        return map[c] || c;
+      }).join("");
 
+    const cleanCategoryName = (text) => text ? text.toLowerCase() : "others";
+
+    const categoryEmojis = {
+      system: "⚙️",
+      economy: "💰",
+      moderation: "🛡️",
+      fun: "🎮",
+      others: "📁"
+    };
+
+    if (args[0]) {
+      const cmdName = args[0].toLowerCase();
+      const cmd =
+        allCommands.get(cmdName) ||
+        [...allCommands.values()].find(c => c.config.aliases?.includes(cmdName));
+
+      if (!cmd)
+        return message.reply(
+`❌ ${fancyFont(`Command '${cmdName}' not found!`)}
+➤ Try ${prefix}help to see full list`
+        );
+
+      const usage = typeof cmd.config.guide === "string"
+        ? cmd.config.guide.replace("{pn}", cmd.config.name)
+        : cmd.config.name;
+
+      const infoMsg =
+`┏━━━━━━━━━━━━━┓
+ 🧩 𝐂𝐌𝐃 𝐈𝐍𝐅𝐎
+┗━━━━━━━━━━━━━┛
+ ✦ Name     : ${cmd.config.name}
+ ✦ Aliases  : ${cmd.config.aliases?.join(", ") || "None"}
+ ✦ Category : ${categoryFont((cmd.config.category || "Others").toUpperCase())}
+ ✦ Version  : v${cmd.config.version || "1.0"}
+ ✦ Author   : ${cmd.config.author || "Unknown"}
+ ✦ Usage    : ${prefix}${usage}
 ━━━━━━━━━━━━━━━
-🔞 𝟏𝟖+ 𝐋𝐈𝐒𝐓 🔞
-➤ ,𝟏𝟖+ • ,𝐇𝐎𝐓 • ,𝐇𝐎𝐓𝟐
-➤ ,𝐇𝐎𝐑𝐍𝐘 • ,𝐍𝐔𝐃𝐄 • ,𝐒𝐄𝐗
-➤ ,𝐒𝐄𝐗𝟐 • ,𝐗𝐍𝐗 • ,𝐔𝐅𝐅
-➤ ,𝐂𝐇𝐔𝐃𝐈 • ,𝐅𝐔𝐂𝐊 • ,𝐅𝐔𝐂𝐊𝟐
-➤ ,𝐅𝐔𝐂𝐊𝟑 • ,𝐂𝐇𝐀𝐊𝐑𝐔𝐍
-━━━━━━━━━━━━━━━━━
-🔥 𝐅𝐔𝐍 & 𝐓𝐑𝐎𝐋𝐋 𝐋𝐈𝐒𝐓 🔥
-━━━━━━━━━━━━━━━━━
-➤ ,𝐡𝐚𝐜𝐤 • ,𝐡𝐢𝐣𝐥𝐚 • ,𝐡𝐢𝐭𝐥𝐞𝐫
-➤ ,𝐡𝐮𝐠 • ,𝐣𝐚𝐢𝐥 • ,𝐣𝐚𝐢𝐥𝟐
-➤ ,𝐤𝐢𝐬𝐬 • ,𝐤𝐢𝐬𝐬𝟐 • ,𝐤𝐨𝐥𝐚
-➤ ,𝐥𝐚𝐭𝐭𝐢 • ,𝐥𝐨𝐯 • ,𝐦𝐚𝐧
-➤ ,𝐦𝐚𝐫𝐫𝐢𝐞𝐝 • ,𝐦𝐞𝐦𝐞 • ,𝐦𝐞𝐦𝐞𝟐
-➤ ,𝐦𝐢𝐚 • ,𝐧𝐞𝐞𝐝𝐠𝐟 • ,𝐧𝐨𝐤𝐢𝐚
-➤ ,𝐩𝐚𝐢𝐫 • ,𝐩𝐚𝐢𝐫𝟐 • ,𝐩𝐚𝐢𝐫𝟑
-➤ ,𝐩𝐚𝐢𝐫𝟒 • ,𝐩𝐭 • ,𝐩𝐫𝐨𝐩𝐨𝐬𝐞
-➤ ,𝐬𝐚𝐝 • ,𝐭𝐨𝐢𝐥𝐞𝐭 • ,𝐭𝐨𝐤𝐚𝐢
-➤ ,𝐯𝐚𝐠𝐠𝐨 • ,𝐠𝐨𝐫𝐮 • ,𝐠𝐨𝐫𝐮𝟐
-➤ ,𝐠𝐚𝐲 • ,𝐠𝐚𝐲𝟐 • ,𝐡𝐨𝐫𝐧𝐲
-➤ ,𝐛𝐮𝐳𝐳 • ,𝐜𝐚𝐩𝐭𝐚𝐢𝐧 • ,𝐜𝐡𝐚𝐤𝐫𝐮𝐧
-➤ ,𝐟𝐮𝐧 • ,𝐟𝐮𝐧𝐧𝐲 • ,𝐠𝐮𝐞𝐬𝐬 camps
+ 📝 ${(cmd.config.longDescription || cmd.config.shortDescription || "No description")}`;
 
-━━━━━━━━━━━━━━━━━━
-📹 𝐕𝐈𝐃𝐄𝐎 & 𝐌𝐄𝐃𝐈𝐀 𝐋𝐈𝐒𝐓 📹
-━━━━━━━━━━━━━━━━━━
-
-➤ ,𝐥𝐨𝐯𝐞 • ,𝐦𝐩𝟑 • ,𝐯𝐢𝐝𝐞𝐨
-➤ ,𝐯𝐢𝐝𝐞𝐨𝟐 • ,𝐬𝐨𝐧𝐠 • ,𝐬𝐨𝐮𝐧加快
-➤ ,𝐯𝐨𝐢𝐜𝐞 • ,𝐭𝐞𝐱𝐭_𝐯𝐨𝐢𝐜𝐞
-➤ ,𝐜21𝐧𝐯𝐞𝐫𝐭𝐦𝐩𝟑 • ,𝐝𝐨𝐰𝐧𝐥23𝐝
-➤ ,𝐭𝐢𝐤𝐭𝐨𝐤 • ,𝐭𝐢𝐤
-
-━━━━━━━━━━━━━━━━━━
-👑𝐎𝐖𝐍𝐄𝐑 𝐒𝐘𝐒𝐓𝐄𝐌 𝐋𝐈𝐒𝐓👑
-━━━━━━━━━━━━━━━━━━
-
-➤ ,𝐡𝐞𝐥𝐩 • ,𝐡𝐞𝐥𝐩𝟐 • ,𝐡𝐞𝐥𝐩𝟑
-➤ ,𝐡𝐞𝐥𝐩𝐚𝐥𝐥 • ,𝐨𝐰𝐧𝐞𝐫 • ,𝐨𝐰𝐧𝐞𝐫𝟐
-➤ ,𝐢𝐧𝐟𝐨 • ,𝐢𝐧𝐟𝐨𝟐 • ,𝐩𝐫𝐞𝐟𝐢𝐱
-➤ ,𝐛𝐨𝐭𝐢𝐧𝐟𝐨 • ,𝐛𝐨𝐭𝐬𝐭𝐚𝐭𝐮𝐬
-➤ ,𝐮𝐩 • ,𝐬𝐨𝐫𝐭𝐡𝐞𝐥𝐩
-
-━━━━━━━━━━━━━━
-💎 𝐒𝐈𝐘𝐀𝐌 𝐁𝐎𝐓 𝐕𝟐 • 𝐕𝟑 • 𝐕𝟓 💎
-━━━━━━━━━━━━━━
-📌 আরও কমান্ড দেখতে নিচের কমান্ডগুলো ব্যবহার করুন:
-➤ ,𝐡𝐞𝐥𝐩𝟐
-— বটের সকল কমান্ড একসাথে  🚀  দেখতে ,𝐡𝐞𝐥𝐩𝐚𝐥𝐥 টাইপ করুন।
-━━━━━━━━━━━━━━
-🚀 মোট কমান্ড ➜ 7০০+
-🤖 সাপোর্টেড ভার্সন ➜ 𝐕𝟐 • 𝐕𝟑 • 𝐕𝟓
-━━━━━━━━━━━━━━━
-`);
+      return message.reply(infoMsg);
     }
+
+    const categories = {};
+
+    for (const [name, cmd] of allCommands) {
+      const cat = cleanCategoryName(cmd.config.category);
+      if (!categories[cat]) categories[cat] = [];
+      categories[cat].push(name);
+    }
+
+    const formatCommands = (cmds) =>
+      cmds.sort().map(c => `    ➥ ${fancyFont(c)}`).join("\n");
+
+    let msg =
+`┏━━━━━━━━━━━━━┓
+ 📜 𝐂𝐌𝐃 𝐇𝐔𝐁
+┗━━━━━━━━━━━━━┛
+ 🔧 ${prefix} | 📊 ${allCommands.size} cmds
+━━━━━━━━━━━━━━━\n`;
+
+    for (const cat of Object.keys(categories)) {
+      const emoji = categoryEmojis[cat] || "📁";
+      msg += `\n${emoji} 『 ${categoryFont(cat.toUpperCase())} 』 ✦ ${categories[cat].length}\n`;
+      msg += formatCommands(categories[cat]) + "\n";
+    }
+
+    msg += `\n━━━━━━━━━━━━━━━\n✨ ${prefix}help <command>`;
+
+    const gifURLs = [
+      "https://i.imgur.com/Xw6JTfn.gif",
+      "https://i.imgur.com/mW0yjZb.gif",
+      "https://i.imgur.com/KQBcxOV.gif"
+    ];
+
+    const randomGifURL = gifURLs[Math.floor(Math.random() * gifURLs.length)];
+    const gifFolder = path.join(__dirname, "cache");
+
+    if (!fs.existsSync(gifFolder))
+      fs.mkdirSync(gifFolder, { recursive: true });
+
+    const gifName = path.basename(randomGifURL);
+    const gifPath = path.join(gifFolder, gifName);
+
+    if (!fs.existsSync(gifPath))
+      await downloadGif(randomGifURL, gifPath);
+
+    return message.reply({
+      body: msg,
+      attachment: fs.createReadStream(gifPath)
+    });
   }
 };
+
+function downloadGif(url, dest) {
+  return new Promise((resolve, reject) => {
+    const file = fs.createWriteStream(dest);
+    https.get(url, (res) => {
+      if (res.statusCode !== 200) {
+        fs.unlink(dest, () => {});
+        return reject();
+      }
+      res.pipe(file);
+      file.on("finish", () => file.close(resolve));
+    }).on("error", (err) => {
+      fs.unlink(dest, () => {});
+      reject(err);
+    });
+  });
+}
