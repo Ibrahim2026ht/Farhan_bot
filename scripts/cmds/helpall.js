@@ -5,7 +5,7 @@ const { getPrefix } = global.utils;
 const { commands, aliases } = global.GoatBot;
 const doNotDelete = "No Name Set";
 
-module.exports = {
+module.exports = { //⎯⃝🙈⎯⃝🍒ড্ঁং ক্ঁর্ঁলে্ঁ হা্ঁসি্ঁনা্ঁর্ঁ কা্ঁছে্ পা্ঁঠি্ঁয়ে্ঁ দি্ঁবো্ঁ 🌺⎯͢😾🔪🧝⎯⃝🍒
  config: {
  name: "helpall",
  version: "1.18",
