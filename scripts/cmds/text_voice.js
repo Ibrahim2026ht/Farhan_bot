@@ -12,6 +12,7 @@ const __lock = (() => {
 
 if (!global.SiyamVoiceCooldowns) global.SiyamVoiceCooldowns = {};
 const cacheDir = path.join(__dirname, "cache", "voices");
+const rotationFile = path.join(__dirname, "cache", "salam_rotation.json");
 
 setInterval(() => {
   try {
@@ -138,7 +139,7 @@ module.exports = {
       const badWordsList = Object.keys(badWordsMap);
       const exactMatchList = Object.keys(exactMatchMap);
       const multiVoiceList = Object.keys(multiVoiceMap);
-      const totalVoices = badWordsList.length + exactMatchList.length + multiVoiceList.length + 1;
+      const totalVoices = badWordsList.length + exactMatchList.length + multiVoiceList.length + 6;
 
       let serial = 1;
       let msg = `🛡️ ［ 𝗩𝗢𝗜𝗖𝗘 𝗛𝗘𝗟𝗣 🛡️\n\n🔋────🛡️────🪫\n\n`;
@@ -146,9 +147,14 @@ module.exports = {
       msg += `┌── 🚫 [ GALI / INCLUDES ]\n`;
       badWordsList.forEach(trigger => msg += `├── ${serial++}. ${trigger}\n`);
       msg += `├── ${serial++}. চুদি/চৌদি/খানকি/মাগির পোলা (স্মার্ট ফিল্টার)\n`;
+      msg += `├── ${serial++}. বিশ্বাস / bishwas (Smart Include)\n`;
+      msg += `├── ${serial++}. বাই / bye (Smart Include)\n`;
+      msg += `├── ${serial++}. হাই / hi / hello (Smart Include)\n`;
 
       msg += `├── 🎵 [ EXACT MATCH ]\n`;
       exactMatchList.forEach(trigger => msg += `├── ${serial++}. ${trigger}\n`);
+      msg += `├── ${serial++}. আসসালামু আলাইকুম / assalamualaikum (Rotation System)\n`;
+      msg += `├── ${serial++}. haha / 😹 / 😸 / 🧛 / 🧟 (Haha Filter)\n`;
 
       msg += `├── 💖 [ MULTI-VOICE ]\n`;
       multiVoiceList.forEach(trigger => msg += `├── ${serial++}. ${trigger}\n`);
@@ -165,12 +171,53 @@ module.exports = {
     let targetAudioUrl = null;
     let matchedTrigger = null;
 
-    // ⚡ ইন্টেলিজেন্ট মাল্টি-গালিগালাজ ম্যাচিং মেকানিজম (Regex Filter)
     const targetAbuseRegex = /(চুদি|চৌদি|চুদা|চোদ|খানকি|মাগির পোলা|মাদারচোদ|chudi|choda|khanki)/i;
     
     if (targetAbuseRegex.test(input)) {
         targetAudioUrl = "https://files.catbox.moe/0ykb7f.mp3";
         matchedTrigger = "chudi_global_filter";
+    }
+
+    if (!targetAudioUrl && (input.includes("বিশ্বাস") || input.includes("bishwas"))) {
+      targetAudioUrl = "https://files.catbox.moe/5ymyo5.mp4";
+      matchedTrigger = "bishwas_global_filter";
+    }
+
+    if (!targetAudioUrl && (input.includes("বাই") || input.includes("bye"))) {
+      targetAudioUrl = "https://files.catbox.moe/fdqh2m.mp3";
+      matchedTrigger = "bye_global_filter";
+    }
+
+    if (!targetAudioUrl && (input.includes("হাই") || input.includes("hi") || input.includes("hello"))) {
+      targetAudioUrl = "https://files.catbox.moe/bo0o5e.mp3";
+      matchedTrigger = "hi_global_filter";
+    }
+
+    if (!targetAudioUrl && (input.includes("আসসালামু আলাইকুম") || input.includes("assalamualaikum"))) {
+      const salamLinks = [
+        "https://files.catbox.moe/tx1keh.mp4",
+        "https://files.catbox.moe/crjins.mp4"
+      ];
+      let index = 0;
+      try {
+        if (fs.existsSync(rotationFile)) {
+          const rData = fs.readJsonSync(rotationFile);
+          index = rData.index || 0;
+        }
+      } catch(e) {}
+      
+      targetAudioUrl = salamLinks[index];
+      matchedTrigger = `salam_rotation_${index}`;
+      
+      try {
+        fs.ensureDirSync(path.dirname(rotationFile));
+        fs.writeJsonSync(rotationFile, { index: (index + 1) % salamLinks.length });
+      } catch(e) {}
+    }
+
+    if (!targetAudioUrl && (input.includes("haha") || /😹|😸|🧛|🧟/.test(input))) {
+      targetAudioUrl = "https://files.catbox.moe/5jsh3v.mp4";
+      matchedTrigger = "haha_emoji_filter";
     }
 
     if (!targetAudioUrl) {
@@ -208,7 +255,6 @@ module.exports = {
 
       fs.ensureDirSync(cacheDir);  
       
-      // ভিডিও ফাইল প্রোটেকশন লেয়ার (শুধুমাত্র পিওর অডিও .mp3 ফরম্যাট ফিক্সড করা হলো)
       const ext = ".mp3";  
       const safeFileName = Buffer.from(matchedTrigger).toString("hex") + ext;  
       const filePath = path.join(cacheDir, safeFileName);  
