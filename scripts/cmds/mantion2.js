@@ -1,15 +1,3 @@
-const a1 = "𝆠፝";
-const a2 = "𝐒𝐈";
-const a3 = "𝐘𝐀𝐌";
-const a4 = "-𝐇𝐀";
-const a5 = "𝐒𝐀𝐍";
-
-const hiddenOwner = [a1, a2, a3, a4, a5].join("");
-
-if (hiddenOwner !== "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍") { //এই নাম পরিবর্তন করলে পুটকিমারা খাবি
-  process.exit(0);
-}
-
 const axios = require("axios");
 const fs = require("fs-extra");
 const path = require("path");
@@ -21,31 +9,17 @@ if (!fs.existsSync(CACHE_DIR)) {
 }
 
 const videoList = [
-  {
-    url: "https://files.catbox.moe/4wkxxe.mp4",
-    file: "video1.mp4"
-  },
-  {
-    url: "https://files.catbox.moe/c27nvc.mp4",
-    file: "video2.mp4"
-  },
-  {
-    url: "https://files.catbox.moe/qu53g7.mp4",
-    file: "video3.mp4"
-  },
-  {
-    url: "https://files.catbox.moe/rzhmck.mp4",
-    file: "video4.mp4"
-  },
-  {
-    url: "https://files.catbox.moe/yior58.mp4",
-    file: "video5.mp4"
-  }
+  { url: "https://files.catbox.moe/yior58.mp4", file: "video1.mp4" },
+  { url: "https://files.catbox.moe/c27nvc.mp4", file: "video2.mp4" },
+  { url: "https://files.catbox.moe/qu53g7.mp4", file: "video3.mp4" },
+  { url: "https://files.catbox.moe/rzhmck.mp4", file: "video4.mp4" },
+  { url: "https://files.catbox.moe/6a7jbj.mp4", file: "video5.mp4" }
 ];
 
 const USER_COOLDOWN = 3 * 60 * 1000;
 const lastReplyUser = {};
 
+// ব্যাকগ্রাউন্ডে ভিডিও ডাউনলোড করার ফাংশন
 async function downloadVideos() {
   for (const vid of videoList) {
     const filePath = path.join(CACHE_DIR, vid.file);
@@ -65,7 +39,6 @@ async function downloadVideos() {
           writer.on("finish", resolve);
           writer.on("error", reject);
         });
-
         console.log(`[DOWNLOAD] Success: ${vid.file}`);
       } catch (err) {
         console.log(`[DOWNLOAD] Failed: ${vid.file}`, err.message);
@@ -76,11 +49,15 @@ async function downloadVideos() {
 
 downloadVideos();
 
+// লেখকের নাম হাইড করার সিক্রেট মেথড (কেউ কোড খুললে নাম বুঝতে পারবে না)
+const _0x5a1b = ['U0lZQU0tSEFTQU4=', 'from'];
+const getAuthor = () => Buffer[_0x5a1b[1]](_0x5a1b[0], 'base64').toString('utf-8');
+
 module.exports = {
   config: {
     name: "mantion2",
     version: "14.0",
-    author: hiddenOwner,
+    author: getAuthor(), // কমান্ডে চেক করলে "SIYAM-HASAN" দেখাবে
     countDown: 0,
     role: 0,
     shortDescription: {
@@ -114,7 +91,6 @@ module.exports = {
       ];
 
       const senderID = String(event.senderID);
-
       if (admins.some(a => a.uid === senderID)) return;
 
       const text = (event.body || "").toLowerCase().trim();
@@ -154,14 +130,9 @@ module.exports = {
       ];
 
       const rawCaption = captions[Math.floor(Math.random() * captions.length)];
+      const styledCaption = `\n❖═══•༻🌺༺•═══❖\n『 ${rawCaption} 』\n❖═══•༻🌺༺•═══❖\n`;
 
-      const styledCaption = `
-❖═══•༻🌺༺•═══❖
-『 ${rawCaption} 』
-❖═══•༻🌺༺•═══❖
-`;
-
-      // 🎲 RANDOM VIDEO SELECTION
+      // ৫টি ভিডিওর মধ্য থেকে র্যান্ডম সিলেকশন
       const selectedVideo = videoList[Math.floor(Math.random() * videoList.length)];
       const videoPath = path.join(CACHE_DIR, selectedVideo.file);
 
