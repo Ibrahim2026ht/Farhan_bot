@@ -1,5 +1,3 @@
-// ⚠️নাম পরিবর্তন করলে ফাইল বন্ধ হয়ে যাবে
-
 const a1 = "𝆠፝";
 const a2 = "𝐒𝐈";
 const a3 = "𝐘𝐀𝐌";
@@ -8,7 +6,7 @@ const a5 = "𝐒𝐀𝐍";
 
 const hiddenOwner = [a1, a2, a3, a4, a5].join("");
 
-if (hiddenOwner !== "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍") {
+if (hiddenOwner !== "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍") { //এই নাম পরিবর্তন করলে পুটকিমারা খাবি
   process.exit(0);
 }
 
@@ -18,15 +16,13 @@ const path = require("path");
 
 const CACHE_DIR = path.join(__dirname, "cache");
 
-// 📂 CACHE CREATE
 if (!fs.existsSync(CACHE_DIR)) {
   fs.mkdirSync(CACHE_DIR, { recursive: true });
 }
 
-// 🎬 VIDEO LIST
 const videoList = [
   {
-    url: "https://files.catbox.moe/yior58.mp4",
+    url: "https://files.catbox.moe/4wkxxe.mp4",
     file: "video1.mp4"
   },
   {
@@ -42,19 +38,14 @@ const videoList = [
     file: "video4.mp4"
   },
   {
-    url: "https://files.catbox.moe/6a7jbj.mp4",
+    url: "https://files.catbox.moe/yior58.mp4",
     file: "video5.mp4"
   }
 ];
 
-// 🔄 VIDEO INDEX FILE
-const indexFile = path.join(CACHE_DIR, "videoIndex.json");
-
-// ⏱️ USER COOLDOWN (3 Minutes = 180,000 Milliseconds)
 const USER_COOLDOWN = 3 * 60 * 1000;
 const lastReplyUser = {};
 
-// 📥 AUTO DOWNLOAD VIDEOS
 async function downloadVideos() {
   for (const vid of videoList) {
     const filePath = path.join(CACHE_DIR, vid.file);
@@ -75,15 +66,14 @@ async function downloadVideos() {
           writer.on("error", reject);
         });
 
-        console.log(`✅ Downloaded: ${vid.file}`);
+        console.log(`[DOWNLOAD] Success: ${vid.file}`);
       } catch (err) {
-        console.log(`❌ Failed: ${vid.file}`, err.message);
+        console.log(`[DOWNLOAD] Failed: ${vid.file}`, err.message);
       }
     }
   }
 }
 
-// 🚀 START DOWNLOAD
 downloadVideos();
 
 module.exports = {
@@ -103,7 +93,6 @@ module.exports = {
 
   onChat: async function ({ api, event, message }) {
     try {
-      // 👑 ADMIN DATA
       const admins = [
         {
           uid: "61568411310748",
@@ -126,7 +115,6 @@ module.exports = {
 
       const senderID = String(event.senderID);
 
-      // 👑 IGNORE ADMIN SELF
       if (admins.some(a => a.uid === senderID)) return;
 
       const text = (event.body || "").toLowerCase().trim();
@@ -134,36 +122,28 @@ module.exports = {
 
       const mentionedIDs = event.mentions ? Object.keys(event.mentions) : [];
 
-      // 🔍 DETECT ADMIN (MENTION OR EXACT TRIGGER MATCH)
       const triggeredAdmin = admins.find(admin => {
-        // ১. যদি সরাসরি মেনশন করা হয়
         const isMentioned = mentionedIDs.includes(admin.uid);
-        
-        // ২. যদি একদম হুবহু নির্দিষ্ট কোনো ট্রিগার শব্দ একা মেসেজ করা হয়
         const isExactTrigger = admin.triggers.some(
           trigger => text === trigger.toLowerCase().trim()
         );
-
         return isMentioned || isExactTrigger;
       });
 
       if (!triggeredAdmin) return;
 
-      // ⏱️ INDIVIDUAL USER COOLDOWN CHECK
       const now = Date.now();
       if (lastReplyUser[senderID] && (now - lastReplyUser[senderID] < USER_COOLDOWN)) {
-        return; // ৩ মিনিট পার না হলে এখানেই কোড থেমে যাবে।
+        return;
       }
 
-      // ⏱️ SET COOLDOWN FOR THIS USER
       lastReplyUser[senderID] = now;
 
-      // 💬 TEXTS
       const captions = [
         "Mantion_দিস না _সিয়াম বস এর মন মন ভালো নেই আস্কে-!💔🥀",
         "- আমার বস সিয়াম এর সাথে কেউ সেক্স করে না থুক্কু টেক্স করে নাহ🫂💔",
         "👉আমার বস ♻️ 𝑺𝒊𝒚𝒂𝒎 এখন বিজি আছে । তার ইনবক্সে এ মেসেজ দিয়ে রাখো https://www.facebook.com/profile.php?id=61589656899295🔰 ♪√বস ফ্রি হলে আসবে🧡😁😜🐒",
-        "বস সিয়াম কে এত মেনশন না দিয়ে বক্স আসো হট করে দিবো🤷‍ঝাং 😘🥒",
+        "বস সিয়াম কে এত মেনশন না দিয়ে باکس আসো হট করে দিবো🤷‍ঝাং 😘🥒",
         "বস সিয়াম কে Mantion_দিলে চুম্মাইয়া ঠুটের কালার change কইরা,লামু 💋😾😾🔨",
         "সিয়াম বস এখন বিজি জা বলার আমাকে বলতে পারেন_!!😼🥰",
         "সিয়াম বস কে এতো মেনশন নাহ দিয়া বস কে একটা জি এফ দে 😒 😏",
@@ -173,44 +153,24 @@ module.exports = {
         "চুমু খাওয়ার বয়স টা আমার বস সিয়াম চকলেট🍫খেয়ে উড়িয়ে দিল 🤗"
       ];
 
-      // 🎲 RANDOM TEXT
       const rawCaption = captions[Math.floor(Math.random() * captions.length)];
 
-      // ✨ STYLE
       const styledCaption = `
 ❖═══•༻🌺༺•═══❖
 『 ${rawCaption} 』
 ❖═══•༻🌺༺•═══❖
 `;
 
-      // 🔄 GET VIDEO INDEX
-      let currentIndex = 0;
-      if (fs.existsSync(indexFile)) {
-        try {
-          const data = JSON.parse(fs.readFileSync(indexFile, "utf8"));
-          currentIndex = data.index || 0;
-        } catch {}
-      }
-
-      // 🎬 SELECT VIDEO
-      const selectedVideo = videoList[currentIndex];
+      // 🎲 RANDOM VIDEO SELECTION
+      const selectedVideo = videoList[Math.floor(Math.random() * videoList.length)];
       const videoPath = path.join(CACHE_DIR, selectedVideo.file);
 
-      // 🔄 SAVE NEXT INDEX
-      let nextIndex = currentIndex + 1;
-      if (nextIndex >= videoList.length) {
-        nextIndex = 0;
-      }
-      fs.writeFileSync(indexFile, JSON.stringify({ index: nextIndex }));
-
-      // 📤 SEND
       if (fs.existsSync(videoPath)) {
         await message.reply({
           body: styledCaption,
           attachment: fs.createReadStream(videoPath)
         });
       } else {
-        // 📥 IF MISSING DOWNLOAD AGAIN
         try {
           const response = await axios({
             method: "GET",
