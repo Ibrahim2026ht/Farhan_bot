@@ -1,118 +1,104 @@
-const { getTime } = global.utils;
 const axios = require("axios");
 const fs = require("fs-extra");
 const path = require("path");
-
-const videoLinks = [
-  "https://files.catbox.moe/bhzikp.mp4",
-  "https://files.catbox.moe/tk688p.mp4"
-];
-
-const countFile = path.join(__dirname, "autoinvite_count.json");
-const cacheDir = path.join(__dirname, "cache");
-
-// cache folder না থাকলে তৈরি করবে
-if (!fs.existsSync(cacheDir)) {
-  fs.mkdirSync(cacheDir, { recursive: true });
-}
+const moment = require("moment-timezone");
 
 module.exports = {
-  config: {
-    name: "autoinvite",
-    version: "2.5",
-    author: "Farhan-Khan",
-    category: "events"
-  },
+    config: {
+        name: "leave",
+        eventType: ["log:unsubscribe"],
+        version: "1.0.0",
+        credits: "𝐂𝐘𝐁𝐄𝐑 ☢️_𖣘 -𝐁𝐎𝐓 ⚠️ 𝑻𝑬𝑨𝑴_ ☢️",
+        description: "Notify when someone leaves or gets kicked from the group with a random online video link"
+    },
 
-  onStart: async ({ api, event, usersData, message }) => {
-    if (event.logMessageType !== "log:unsubscribe") return;
+    onStart: async function ({ api, event, Users, Threads }) {
+        // যদি বট নিজে লিভ নেয় বা তাকে কিক দেওয়া হয়, তবে কোড রান হবে না
+        if (event.logMessageData.leftParticipantFbId == api.getCurrentUserID()) return;
 
-    const { threadID, logMessageData, author } = event;
-    const leftID = logMessageData.leftParticipantFbId;
+        const { threadID } = event;
 
-    // যদি কেউ নিজের ইচ্ছায় লিভ নেয় (kick না)
-    if (leftID === author) {
-      const userName = await usersData.getName(leftID);
+        // আপনার দেওয়া ক্যাটবক্স (catbox) ভিডিও লিংকগুলো এখানে যুক্ত করা হয়েছে
+        const videoLinks = [
+            "https://files.catbox.moe/35fr7l.mp4",
+            "https://files.catbox.moe/k6nbwh.mp4",
+            "https://files.catbox.moe/lwbpjm.mp4",
+            "https://files.catbox.moe/c1ocuq.mp4",
+            "https://files.catbox.moe/9pqhkn.mp4",
+            "https://files.catbox.moe/fgrsla.mp4",
+            "https://files.catbox.moe/x0704i.mp4",
+            "https://files.catbox.moe/40tdpp.mp4",
+            "https://files.catbox.moe/h03zkw.mp4"
+        ];
 
-      // Messenger-friendly bold font map
-      const boldMap = {
-        A: "𝗔", B: "𝗕", C: "𝗖", D: "𝗗", E: "𝗘", F: "𝗙", G: "𝗚", H: "𝗛", I: "𝗜", J: "𝗝",
-        K: "𝗞", L: "𝗟", M: "𝗠", N: "𝗡", O: "𝗢", P: "𝗣", Q: "𝗤", R: "𝗥", S: "𝗦", T: "𝗧",
-        U: "𝗨", V: "𝗩", W: "𝗪", X: "𝗫", Y: "𝗬", Z: "𝗭",
-        a: "𝗮", b: "𝗯", c: "𝗰", d: "𝗱", e: "𝗲", f: "𝗳", g: "𝗴", h: "𝗵", i: "𝗶", j: "𝗷",
-        k: "𝗸", l: "𝗹", m: "𝗺", n: "𝗻", o: "𝗼", p: "𝗽", q: "𝗾", r: "𝗿", s: "𝘀", t: "𝘁",
-        u: "𝘂", v: "𝘃", w: "𝘄", x: "𝘅", y: "𝘆", z: "𝘇"
-      };
+        try {
+            // সময় এবং সেশন সেটআপ (বাংলাদেশ টাইমজোন)
+            const time = moment.tz("Asia/Dhaka").format("DD/MM/YYYY || HH:mm:ss");
+            const hours = parseInt(moment.tz("Asia/Dhaka").format("HH"));
+            
+            let session = "𝙉𝙞𝙜𝙝𝙩";
+            if (hours >= 5 && hours < 12) session = "𝙈𝙤𝙧𝙣𝙞𝙣𝙜";
+            else if (hours >= 12 && hours < 16) session = "𝘼𝙛𝙩𝙚𝙧𝙉𝙤𝙤𝙣";
+            else if (hours >= 16 && hours < 19) session = "𝙀𝙫𝙚𝙣𝙞𝙣𝙜";
 
-      const boldName = userName.split("").map(c => boldMap[c] || c).join("");
+            // মেম্বার ও থ্রেডের ডাটা সংগ্রহ
+            const threadData = global.data.threadData.get(parseInt(threadID)) || (await Threads.getData(threadID)).data || {};
+            const name = global.data.userName.get(event.logMessageData.leftParticipantFbId) || await Users.getNameUser(event.logMessageData.leftParticipantFbId);
+            
+            // নিজে লিভ নিয়েছে নাকি কিক খেয়েছে তা নির্ধারণ
+            const type = (event.author == event.logMessageData.leftParticipantFbId) ? "নিজে চলে গেছে" : "তাড়িয়ে দেওয়া হয়েছে";
 
-      const form = {
-        body: `-পলাইছে রে পলাইছে...!! 
-『 ${boldName} 』
--এই বলদ পলাইছে.!😹 
--আমি বস『 👑 𝐒𝐈𝐘𝐀𝐌-👑 』এর বট থাকতে.!
--তুই পালাতে পারবি না-😂😹👈`
-      };
-
-      try {
-        await api.addUserToGroup(leftID, threadID);
-
-        let currentIndex = 0;
-
-        if (fs.existsSync(countFile)) {
-          try {
-            currentIndex = JSON.parse(
-              fs.readFileSync(countFile, "utf8")
-            ).index || 0;
-          } catch {}
-        }
-
-        const selectedVideo = videoLinks[currentIndex % videoLinks.length];
-
-        fs.writeFileSync(
-          countFile,
-          JSON.stringify({
-            index: (currentIndex + 1) % videoLinks.length
-          })
-        );
-
-        const videoPath = path.join(
-          cacheDir,
-          `autoinvite_${Date.now()}.mp4`
-        );
-
-        const response = await axios({
-          url: selectedVideo,
-          method: "GET",
-          responseType: "stream"
-        });
-
-        const writer = fs.createWriteStream(videoPath);
-
-        await new Promise((resolve, reject) => {
-          response.data.pipe(writer);
-          writer.on("finish", resolve);
-          writer.on("error", reject);
-        });
-
-        await message.send({
-          body: form.body,
-          attachment: fs.createReadStream(videoPath)
-        });
-
-        setTimeout(() => {
-          try {
-            if (fs.existsSync(videoPath)) {
-              fs.unlinkSync(videoPath);
+            // মেসেজ ডিজাইন
+            let msg = "";
+            if (typeof threadData.customLeave == "undefined" || threadData.customLeave == null) {
+                msg = `╭═════⊹⊱✫⊰⊹═════╮ \n ⚠️ গুরুতর ঘোষণা ⚠️\n╰═════⊹⊱✫⊰⊹═════╯\n\n${session} || ${name} ভাই/বোন...\nএই মাত্র গ্রুপ থেকে নিখোঁজ হয়েছেন!\nগ্রুপবাসীদের পক্ষ থেকে গভীর উদ্বেগ ও\nচাপা কান্নার মাধ্যমে জানানো যাচ্ছে...\n\n— উনি আর নেই... মানে গ্রুপে নেই!\nকিন্তু হৃদয়ে থেকে যাবেন, এক্টিভ মেম্বার হিসেবে।\n\n⏰ তারিখ ও সময়: ${time}\n⚙️ স্ট্যাটাস: ${type}\n✍️ মন্তব্য করে জানাও: তোমার কী ফিলিংস হইছে এই বিচ্ছেদে?`;
+            } else {
+                msg = threadData.customLeave
+                    .replace(/{name}/g, name)
+                    .replace(/{type}/g, type)
+                    .replace(/{session}/g, session)
+                    .replace(/{time}/g, time);
             }
-          } catch {}
-        }, 5000);
 
-      } catch (err) {
-        message.send(
-          "⚠️উফফ... ইউজারটাকে আবার অ্যাড দিতে পারলাম না 😿 🔒 হয়তো প্রাইভেসি বা অন্য কোনো সমস্যা আছে! 🤲 আল্লাহ যা করেন ভালোর জন্যই করেন 💖"
-        );
-      }
+            // ভিডিও ডাউনলোডের জন্য টেম্পোরারি পাথ তৈরি
+            const cacheFolder = path.join(__dirname, "cache");
+            if (!fs.existsSync(cacheFolder)) fs.mkdirSync(cacheFolder, { recursive: true });
+            
+            const videoPath = path.join(cacheFolder, `leave_${event.logMessageData.leftParticipantFbId}.mp4`);
+            
+            // লিস্ট থেকে যেকোনো একটি ভিডিও লিংক র‍্যান্ডমলি সিলেক্ট করা
+            const randomVideoUrl = videoLinks[Math.floor(Math.random() * videoLinks.length)];
+
+            // ভিডিওটি ডাউনলোড করা হচ্ছে
+            const response = await axios({
+                method: 'get',
+                url: randomVideoUrl,
+                responseType: 'stream'
+            });
+
+            const writer = fs.createWriteStream(videoPath);
+            response.data.pipe(writer);
+
+            writer.on('finish', async () => {
+                const formPush = {
+                    body: msg,
+                    attachment: fs.createReadStream(videoPath)
+                };
+                
+                // সফলভাবে মেসেজ ও ভিডিও চলে যাওয়ার পর ফাইল ডিলিট হবে যেন বটের স্টোরেজ ফুল না হয়
+                await api.sendMessage(formPush, threadID, () => {
+                    if (fs.existsSync(videoPath)) fs.unlinkSync(videoPath);
+                });
+            });
+
+            writer.on('error', async (err) => {
+                console.error("Video download error:", err);
+                
+                await api.sendMessage({ body: msg }, threadID);
+            });
+
+        } catch (error) {
+            console.error("Error in leave event:", error);
+        }
     }
-  }
 };
