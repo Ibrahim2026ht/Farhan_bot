@@ -2,7 +2,7 @@ const axios = require("axios");
 const fs = require("fs-extra");
 const path = require("path");
 
-const EXPECTED_AUTHOR = "FARHAN-KHAN";
+const EXPECTED_AUTHOR = "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍";
 
 module.exports = {
   config: {
@@ -21,14 +21,14 @@ module.exports = {
 
   onStart: async function ({ api, event }) {
 
-    // 🔒 AUTHOR LOCK CHECK
+  
     if (module.exports.config.author !== EXPECTED_AUTHOR) {
       throw new Error("❌ AUTHOR LOCKED FILE - Modification Detected!");
     }
 
     // 💔 Random sad captions
     const captions = [
-      "===「𝐏𝐑𝐄𝐅𝐈𝐗-𝐄𝐕𝐄𝐍𝐓」=== \n--❖(✷‿𝐍𝐈𝐉𝐇𝐔𝐌-𝐁𝐎𝐓‿✷)❖-- \n✢━━━━━━━━━━━━━━━✢        \n🎌🏴‍☠️♡-𝐀𝐍𝐈𝐌𝐄-𝐕𝐈𝐃𝐄𝐎-♡🏴‍☠️🎌 \n✢━━━━━━━━━━━━━━━✢\n(✷‿𝐎𝐖𝐍𝐄𝐑:-‿𝐃𝐒-𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍✷)"
+      "=「𝐏𝐑𝐄𝐅𝐈𝐗-𝐄𝐕𝐄𝐍𝐓」= \n--❖(✷‿𝐍𝐈𝐉𝐇𝐔𝐌-𝐁𝐎𝐓‿✷)❖-- \n✢━━━━━━━━━━━━━━━✢        \n🎌🏴‍☠️♡-𝐀𝐍𝐈𝐌𝐄-𝐕𝐈𝐃𝐄𝐎-♡🏴‍☠️🎌 \n✢━━━━━━━━━━━━━━━✢\n(✷‿𝐎𝐖𝐍𝐄𝐑:-‿𝐃𝐒-𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍✷)"
     ];
 
     const caption = captions[Math.floor(Math.random() * captions.length)];
