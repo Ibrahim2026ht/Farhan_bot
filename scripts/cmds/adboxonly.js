@@ -1,9 +1,17 @@
+const OWNER_NAME = "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍";  // নাম পরিবর্তন করলে ফাইল নষ্ট হতে পারে⚠️
+const ANTI_TAMPER = "𝆠፝";
+const hiddenOwner = ANTI_TAMPER + OWNER_NAME;
+
+if (hiddenOwner !== "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍") {  // নাম পরিবর্তন করলে ফাইল নষ্ট হতে পারে⚠️
+  process.exit(0);
+}
+
 module.exports = {
 	config: {
 		name: "onlyadminbox",
 		aliases: ["onlyadbox", "adboxonly", "adminboxonly"],
 		version: "1.3",
-		author: "FARHAN-KHAN",
+		author: hiddenOwner,
 		countDown: 5,
 		role: 2,
 		description: {
@@ -39,7 +47,7 @@ module.exports = {
 	onStart: async function ({ args, message, event, threadsData, getLang }) {
 
 		// 🔒 AUTHOR LOCK CHECK
-		if (module.exports.config.author !== "FARHAN-KHAN") {
+		if (module.exports.config.author !== "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍") {
 			return message.reply("⛔ AUTHOR CHANGED!\n🔒 THIS COMMAND IS LOCKED.");
 		}
 
