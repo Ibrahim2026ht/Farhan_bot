@@ -1,14 +1,8 @@
-// 🙂 নাম পরিবর্তন করলে ফাইল নষ্ট হতে পারে
+const OWNER_NAME = "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍"; // নাম পরিবর্তন করলে ফাইল নষ্ট হতে পারে⚠️
+const ANTI_TAMPER = "𝆠፝";
+const hiddenOwner = ANTI_TAMPER + OWNER_NAME;
 
-const a1 = "𝆠፝";
-const a2 = "𝐒𝐈";
-const a3 = "𝐘𝐀𝐌";
-const a4 = "-𝐇𝐀";
-const a5 = "𝐒𝐀𝐍";
-
-const hiddenOwner = [a1, a2, a3, a4, a5].join("");
-
-if (hiddenOwner !== "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍") {
+if (hiddenOwner !== "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍") { // নাম পরিবর্তন করলে ফাইল নষ্ট হতে পারে⚠️
   process.exit(0);
 }
 
