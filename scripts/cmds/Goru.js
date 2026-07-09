@@ -7,7 +7,7 @@ module.exports = {
   config: {
     name: "goru",
     version: "2.3",
-    author: "ARIJIT × Ere'rious", // Don't change author name
+    author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍", //নাম পরিবর্তন করলে ফাইল বন্ধ হয়ে যাবে ⚠️
     countDown: 5,
     role: 0,
     usePrefix: true,
