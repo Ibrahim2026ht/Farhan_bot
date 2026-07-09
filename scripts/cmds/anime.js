@@ -2,13 +2,12 @@ const axios = require("axios");
 const fs = require("fs-extra");  
 const path = require("path");  
 
-// 🔒 AUTHOR LOCK SYSTEM
 (function () {
   try {
     const fileContent = fs.readFileSync(__filename, "utf8");
 
-    // যদি কেউ author পরিবর্তন করে
-    if (!fileContent.includes('author: "FARHAN-KHAN"')) {
+
+    if (!fileContent.includes('author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍"')) {
       console.log("⛔ Author modified! File is locked.");
       process.exit(1);
     }
@@ -23,7 +22,7 @@ module.exports = {
   name: "sizuka",  
   aliases: ["waifu", "neko", "shinobu", "megumin", "bully", "cuddle", "cry", "hug", "awoo", "kiss", "lick", "pat", "smug", "bonk", "yeet", "blush", "smile", "wave", "highfive", "handhold", "nom", "bite", "glomp", "slap", "kill", "kick", "happy", "wink", "poke", "dance", "cringe"],  
   version: "1.4.0",  
-  author: "FARHAN-KHAN",  
+  author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",  
   countDown: 10,  
   role: 0,  
   shortDescription: {  
