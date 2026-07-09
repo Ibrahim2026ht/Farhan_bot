@@ -12,7 +12,7 @@ module.exports = {
     name: "ani",
     aliases: ["aniusr", "anisearch"],
     version: "1.0",
-    author: "Farhan",
+    author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     countDown: 5,
     role: 0,
     description: "Search random TikTok video by keyword",
