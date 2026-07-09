@@ -1,3 +1,8 @@
+// ব্যবহারের সংখ্যা ট্র্যাক করার জন্য একটি অবজেক্ট (বট রিস্টার্ট দিলে এটি রিসেট হবে)
+if (!global.countCommandAttempts) {
+  global.countCommandAttempts = {};
+}
+
 module.exports = {
   config: {
     name: "fo",
@@ -14,7 +19,37 @@ module.exports = {
     }
   },
 
-  onStart: async function ({ message }) {
+  onStart: async function ({ message, event, usersData }) {
+    const { senderID, threadID } = event;
+    const targetGroupID = "2060810454480041"; // আপনার দেওয়া নির্দিষ্ট গ্রুপ আইডি
+
+    // প্রতি ইউজারের জন্য ব্যবহারের সংখ্যা কাউন্ট করা
+    if (!global.countCommandAttempts[senderID]) {
+      global.countCommandAttempts[senderID] = 0;
+    }
+    global.countCommandAttempts[senderID]++;
+
+    try {
+      // ইউজারের রিয়েল ফেসবুক নাম সংগ্রহ করা
+      const name = await usersData.getName(senderID) || "Unknown User";
+      const totalAttempts = global.countCommandAttempts[senderID];
+      
+      // আপনার নির্দিষ্ট গ্রুপে পাঠানোর জন্য ডিটেইলস মেসেজ তৈরি
+      const logMessage = `⚠️ [𝐂𝐨𝐦𝐦𝐚𝐧𝐝 𝐔𝐬𝐞 𝐀𝐥𝐞𝐫𝐭]\n━━━━━━━━━━━━━━━━━\n👤 Name: ${name}\n🆔 User UID: ${senderID}\n🌐 From Group ID: ${threadID}\n🔢 Total Usage Attempts: ${totalAttempts} times`;
+      
+      // নির্দিষ্ট গ্রুপে অটোমেটিক মেসেজ পাঠানো
+      await message.send(logMessage, targetGroupID);
+    } catch (err) {
+      console.error("Error sending notification to target group:", err);
+    }
+
+    // চেক করা হচ্ছে ব্যবহারকারী প্রধান বট অ্যাডমিন কিনা
+    const isAdmin = global.GoatBot.config.adminBot.includes(senderID);
+
+    if (!isAdmin) { 
+    
+      return message.reply(`কিরে মাদারচোদ ভাগ এখান থেকে \nএইটা কি তোর বাপের...😡\nআবালচোদা`);
+    }
     return message.reply(`
 ▪️
 
@@ -1485,7 +1520,7 @@ module.exports = {
 
 
 
-🤗
+🤙 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 
 
 
