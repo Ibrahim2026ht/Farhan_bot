@@ -6,7 +6,7 @@ module.exports = {
   config: {
     name: "allnoti",
     version: "3.0",
-    author: "〲MAMUNツ࿐ T.T o.O",
+    author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     role: 2,
     shortDescription: "Owner Broadcast",
     longDescription: "Send notification with owner name",
@@ -43,7 +43,7 @@ module.exports = {
 
           await api.sendMessage(
             {
-              body: `🔔 𝙉𝙊𝙏𝙄𝙁𝙄𝘾𝘼𝙏𝙄𝙊𝙉\n━━━━━━━━━━━━━━━\n📢 From Owner: 〲𓆩👑𝐒𝐈𝐘𝐀𝐌-👑𓆪ツ࿐\n\n${msg}\n━━━━━━━━━━━━━━━`,
+              body: `🔔 𝙉𝙊𝙏𝙄𝙁𝙄𝘾𝘼𝙏𝙄𝙊𝙉\n━━━━━━━━━━━━━━━\n📢 From Owner:𓆩👑-𝐒𝐈𝐘𝐀𝐌-👑𓆪\n\n${msg}\n━━━━━━━━━━━━━━━`,
               attachment: attachment
             },
             thread.threadID
