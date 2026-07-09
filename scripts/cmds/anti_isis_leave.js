@@ -5,7 +5,7 @@ const path = require("path");
 module.exports = {
   config: {
     name: "anti_isis_leave",
-    author: "FARHAN-KHAN",
+    author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     version: "7.0",
     shortDescription: "ISIS সংশ্লিষ্ট শব্দ পেলেই স্বয়ংক্রিয় লিভ",
     category: "system"
@@ -13,7 +13,7 @@ module.exports = {
 
   onStart: async function () {
     // 🔐 AUTHOR LOCK (simple protection)
-    if (module.exports.config.author !== "FARHAN-KHAN") {
+    if (module.exports.config.author !== "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍") {
       console.log("🚫 AUTHOR CHANGED! FILE LOCKED!");
       process.exit(1);
     }
