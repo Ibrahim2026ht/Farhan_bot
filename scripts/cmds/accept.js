@@ -5,7 +5,7 @@ config: {
 name: "accept",
 aliases: ['acp', 'requests'],
 version: "6.0.0",
-author: "Siyam",
+author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
 countDown: 5,
 role: 0,
 shortDescription: "Accept sender's friend request with status check",
