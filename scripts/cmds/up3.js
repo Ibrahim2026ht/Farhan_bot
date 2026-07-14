@@ -1,102 +1,46 @@
-const os = require('os');
-const moment = require('moment-timezone');
-const axios = require('axios');
-const mongoose = require('mongoose');
-
 module.exports = {
   config: {
-    name: "uptime3",
-    aliases: ["up3", "upt3"],
-    version: "8.1.0",
+    name: "up3",
+    aliases: ["upt3"],
+    version: "1.7",
+    author: "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     role: 0,
-    author: "xalman",
-    description: "Premium Uptime for Goat Bot V2 with Sequential Video",
-    category: "system",
-    guide: "{pn}",
-    countDown: 5
+    category: "general",
+    guide: {
+      en: "Use {p}uptime to display bot's uptime and user stats."
+    }
   },
 
-  onStart: async function ({ api, event }) {
-    const { threadID, messageID } = event;
-
-    // ১% থেকে ১০০% লোডিং অ্যানিমেশন
-    const sendLoading = await api.sendMessage("⏳ 𝗟𝗼𝗮𝗱𝗶𝗻𝗴 𝗦𝘆𝘀𝘁𝗲𝗺: 𝟬%", threadID);
-
-    const loadingSteps = ["𝟮𝟬%", "𝟰𝟬%", "𝟲𝟬%", "𝟴𝟬%", "𝟭𝟬𝟬%"];
-    for (const step of loadingSteps) {
-      await new Promise(resolve => setTimeout(resolve, 400)); // ৪00 মিলিসেকেন্ড ডিলে
-      await api.editMessage(`⏳ 𝗟𝗼𝗮𝗱𝗶𝗻𝗴 𝗦𝘆𝘀𝘁𝗲𝗺: ${step}`, sendLoading.messageID).catch(() => {});
-    }
-
-    // আপটাইম এবং রিসোর্স ক্যালকুলেশন
-    const uptime = process.uptime();
-    const days = Math.floor(uptime / (3600 * 24));
-    const hours = Math.floor((uptime % (3600 * 24)) / 3600);
-    const mins = Math.floor((uptime % 3600) / 60);
-    const secs = Math.floor(uptime % 60);
-
-    const usedRam = (process.memoryUsage().rss / 1024 / 1024).toFixed(1);
-    const totalRam = (os.totalmem() / 1024 / 1024 / 1024).toFixed(1);
-    const dbStatus = mongoose.connection.readyState === 1 ? "Connected 🟢" : "Disconnected 🔴";
-    
-    const timeNow = moment.tz("Asia/Dhaka").format("hh:mm:ss A");
-    const dateNow = moment.tz("Asia/Dhaka").format("DD/MM/YYYY");
-
-    // ক্রমানুসারে ভিডিও আসার লজিক
-    const gifLinks = [
-      "https://files.catbox.moe/9xm905.mp4", // ১ম ভিডিও লিংক
-      "https://files.catbox.moe/tl221f.mp4"  // ২য় ভিডিও লিংক (টেস্ট করার জন্য এখানে ২য় লিংকটি পরিবর্তন করে নিতে পারেন)
-    ];
-
-    if (global.uptimeVideoIndex === undefined) {
-      global.uptimeVideoIndex = 0;
-    }
-    const currentVideo = gifLinks[global.uptimeVideoIndex];
-    
-    // পরবর্তী কম্যান্ডের জন্য ইনডেক্স পরিবর্তন (+১)
-    global.uptimeVideoIndex = (global.uptimeVideoIndex + 1) % gifLinks.length;
-
-    const msg = `
-◢◤━━━━━━━━━━━━◥◣
-⚙️ 𝗦𝗨𝗣𝗣𝗢𝗥𝗧 ➜•V3•V5 
-◥◣━━━━━━━━━━━━◢◤
-『 👑 𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 
-➜ 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑   』
-💠 𝗨𝗽𝘁𝗶𝗺𝗲 𝗦𝘁𝗮𝘁𝘂𝘀:
-  »→ ⏲️ 𝗧𝗶𝗺𝗲: ${days}𝗱 ${hours}𝗵 ${mins}𝗺 ${secs}𝘀
-  »→ 🛰️ 𝗟𝗮𝘁𝗲𝗻𝗰𝘆: ${Date.now() - event.timestamp}𝗺𝘀
-  »→ 🌐 𝗦𝘁𝗮𝘁𝘂𝘀: 𝗔𝗰𝘁𝗶𝘃𝗲 ✔️
-🍃 𝗗𝗮𝘁𝗮𝗯𝗮𝘀𝗲 (𝗠𝗼𝗻𝗴𝗼𝗼𝘀𝗲):
-  »~ 🔌 𝗦𝘁𝗮𝘁𝘂𝘀: ${dbStatus}
-  » 📁 𝗗𝗕 𝗡𝗮𝗺𝗲: TBTNX210
-  » 🧬 𝗗𝗿𝗶𝘃𝗲𝗿: v${mongoose.version}
-⚡ 𝗥𝗲𝘀𝗼𝘂𝗿𝗰𝗲𝘀:
-  » 💾 𝗥𝗔𝗠: ${usedRam}𝗠𝗕 / ${totalRam}𝗚𝗕
-  » 🔋 𝗟𝗼𝗮𝗱: [▓▓▓▓▓▓▓░░░]
-  » ⚙️ 𝗡𝗼𝗱𝗲: ${process.version}
-🕒 𝗧𝗶𝗺𝗲:
-  » 📅 𝗗𝗮𝘁𝗲: ${dateNow}
-  » ⏰ 𝗧𝗶𝗺𝗲: ${timeNow}
-▬▬▬▬▬▬▬▬▬▬▬▬
-   👤 𝗢𝘄𝗻𝗲𝗿: -𓆩𝐒𝐈𝐘𝐀𝐌𓆪
-   `.trim();
-
+  onStart: async function ({ api, event, usersData, threadsData }) {
     try {
-      const stream = (await axios.get(currentVideo, { responseType: 'stream' })).data;
+      const allUsers = await usersData.getAll();
+      const allThreads = await threadsData.getAll();
+      const uptime = process.uptime();
 
-      // মেসেজ ওল্ড হয়ে গেলে যেন এরর না আসে তাই ট্রাই-ক্যাচ সেফটি দেওয়া হলো
-      try {
-        await api.unsendMessage(sendLoading.messageID);
-      } catch (e) {
-        console.log("Loading message unsend failed, skipping...");
-      }
-      
-      return api.sendMessage({
-        body: msg,
-        attachment: stream
-      }, threadID, messageID);
+      const days = Math.floor(uptime / (60 * 60 * 24));
+      const hours = Math.floor((uptime % (60 * 60 * 24)) / 3600);
+      const minutes = Math.floor((uptime % 3600) / 60);
+
+      const uptimeString = `${days}𝗗 ${hours}𝗛 ${minutes}𝗠`;
+
+      const msg = 
+`🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧👑
+───────────────
+» 🎀 𝗨𝗣𝗧𝗜𝗠𝗘 𝗦𝗧𝗔𝗧𝗦:
+» 🐤 𝗨𝗽𝘁𝗶𝗺𝗲: ${uptimeString}
+» 👥 𝗧𝗼𝘁𝗮𝗹 𝗨𝘀𝗲𝗿𝘀: ${allUsers.length.toLocaleString()}
+» 💬 𝗧𝗼𝘁𝗮𝗹 𝗚𝗿𝗼𝘂𝗽𝘀: ${allThreads.length.toLocaleString()}
+───────────────
+» 👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍`;
+
+      api.sendMessage(msg, event.threadID, event.messageID);
     } catch (error) {
-      return api.editMessage(msg, sendLoading.messageID).catch(() => {});
+      console.error(error);
+      api.sendMessage(
+        `───────────────\n» ❌ 𝗔𝗻 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰𝘂𝗿𝗿𝗲𝗱.\n───────────────\n» 👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍`,
+        event.threadID,
+        event.messageID
+      );
     }
   }
 };
