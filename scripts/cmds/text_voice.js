@@ -94,7 +94,7 @@ module.exports = {
 
     const badWordsMap = {
       "ভুদা": "https://files.catbox.moe/gnyx0p.mp3",  
-      "আসো হাত মারি": "https://files.catbox.moe/8ioph1.mp3",  
+      "আসো হাত মারi": "https://files.catbox.moe/8ioph1.mp3",  
       "🖕": "https://files.catbox.moe/n4kdj7.mp3"
     };
 
@@ -133,13 +133,13 @@ module.exports = {
       const admins = (global.GoatBot?.config?.adminBot || []).map(id => String(id));  
       
       if (senderID !== bossID && !admins.includes(senderID)) {  
-        return message.reply(" | 🤬এ মাদারচোদ বট তোর বাপের।🙄   🥵তোর আম্মুর বোদা ফাক কর🖕 👉এইটা শুধু আমার বস সিয়াম এর জন্য😻!");  
+        return message.reply(" | 🤬এ মাদারচোদ বট তোর বাপের।🙄    🥵তোর আম্মুর বোদা ফাক কর🖕 👉এইটা শুধু আমার বস সিয়াম এর জন্য😻!");  
       }  
 
       const badWordsList = Object.keys(badWordsMap);
       const exactMatchList = Object.keys(exactMatchMap);
       const multiVoiceList = Object.keys(multiVoiceMap);
-      const totalVoices = badWordsList.length + exactMatchList.length + multiVoiceList.length + 6;
+      const totalVoices = badWordsList.length + exactMatchList.length + multiVoiceList.length + 7;
 
       let serial = 1;
       let msg = `🛡️ ［ 𝗩𝗢𝗜𝗖𝗘 𝗛𝗘𝗟𝗣 🛡️\n\n🔋────🛡️────🪫\n\n`;
@@ -147,6 +147,7 @@ module.exports = {
       msg += `┌── 🚫 [ GALI / INCLUDES ]\n`;
       badWordsList.forEach(trigger => msg += `├── ${serial++}. ${trigger}\n`);
       msg += `├── ${serial++}. চুদি/চৌদি/খানকি/মাগির পোলা (স্মার্ট ফিল্টার)\n`;
+      msg += `├── ${serial++}. বকা / স্লাং ফিল্টার (স্মার্ট ফিল্টার)\n`;
       msg += `├── ${serial++}. বিশ্বাস / bishwas (Smart Include)\n`;
       msg += `├── ${serial++}. বাই / bye (Smart Include)\n`;
       msg += `├── ${serial++}. হাই / hi / hello (Smart Include)\n`;
@@ -162,7 +163,7 @@ module.exports = {
       msg += `└──────────────🐲\n`;
       msg += `🤖 𝗕𝗢𝗧: 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧\n`;
       msg += `👑 𝗢𝗪𝗡𝗘𝗥: 𝗦𝗜𝗬𝗔𝗠 𝗛𝗔𝗦𝗔𝗡\n`;
-      msg += `📊 𝗧𝗢𝗧𝗔𝗟 𝗩𝗢𝗜𝗖𝗘𝗦: ${totalVoices}\n\n`;
+      msg += `📊 𝗧𝗢𝗧𝗔𝗟 𝗩𝗢𝗜𝗖Ｅ─ ${totalVoices}\n\n`;
       msg += `📱 Contact: +8801789138157`;
 
       return message.reply(msg);  
@@ -170,10 +171,16 @@ module.exports = {
 
     let targetAudioUrl = null;
     let matchedTrigger = null;
+    let forceAudioMode = false;
 
-    const targetAbuseRegex = /(চুদি|চৌদি|চুদা|চোদ|খানকি|মাগির পোলা|মাদারচোদ|chudi|choda|khanki)/i;
+    const customAbuseRegex = /(মাগির পোলা|খানকিমাগী|খানকি মাগী|তরে চু|মাদারচোদ|নষ্ট|কুত্তার বাচ্চা|শুয়োরের বাচ্চা|magir pola|khankimagi|khanki magi|tore chu|madarchod|kuttar baccha|gandu|slut|bitch|bastard)/i;
+    const targetAbuseRegex = /(চুদি|চৌদি|চুদা|চোদ|খানকি|বাল|পোদ|নুনু|চোদা|chudi|choda|khanki|baal|chud|gali)/i;
     
-    if (targetAbuseRegex.test(input)) {
+    if (customAbuseRegex.test(input)) {
+        targetAudioUrl = "https://files.catbox.moe/acsrlq.mp4";
+        matchedTrigger = "custom_abuse_filter";
+        forceAudioMode = true; 
+    } else if (targetAbuseRegex.test(input)) {
         targetAudioUrl = "https://files.catbox.moe/0ykb7f.mp3";
         matchedTrigger = "chudi_global_filter";
     }
@@ -255,7 +262,7 @@ module.exports = {
 
       fs.ensureDirSync(cacheDir);  
       
-      const ext = ".mp3";  
+      const ext = forceAudioMode ? ".mp3" : (targetAudioUrl.endsWith(".mp4") ? ".mp4" : ".mp3");  
       const safeFileName = Buffer.from(matchedTrigger).toString("hex") + ext;  
       const filePath = path.join(cacheDir, safeFileName);  
 
