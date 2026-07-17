@@ -201,23 +201,44 @@ ${formatted}`
     const raw = event.body ? event.body.toLowerCase().trim() : "";
     if (!raw) return;
 
+    if (event.messageReply) {
+      try {
+        const setting = await axios.get(`${simsim}/setting`, { timeout: 8000 });
+        if (setting.data?.autoTeach) {
+          const ask = event.messageReply.body?.toLowerCase().trim();
+          const ans = raw.trim();
+          const senderName = await usersData.getName(event.senderID);
+          if (ask && ans && ask !== ans) {
+            setTimeout(async () => {
+              try {
+                await axios.get(`${simsim}/teach?ask=${encodeURIComponent(ask)}&ans=${encodeURIComponent(ans)}&senderName=${encodeURIComponent(senderName)}`, { timeout: 10000 });
+              } catch {}
+            }, 500);
+          }
+        }
+      } catch {}
+      return; 
+    }
+
     const senderID = event.senderID;
     const senderName = await usersData.getName(senderID);
     const threadID = event.threadID;
 
     try {
       const triggers = ["baby","bby","xan","bbz","mari","মারিয়া","bot"];
+    
       if (triggers.includes(raw)) {
-        await typing(api, threadID, 5000);
+        await typing(api, threadID, 2000);
         const funny = [
-          "𝘬𝘪 𝘏𝘰𝘪𝘴𝘦 𝘑𝘢𝘯 𝘣𝘰𝘭𝘰 😿", "𝘌𝘵𝘰 𝘋𝘢𝘬𝘰 𝘒𝘦นน 𝘚𝘶𝘯𝘴𝘪 𝘛𝘰 🙆‍♀️", "𝘌𝘵𝘰 𝘉𝘰𝘵 𝘉𝘰𝘵 𝘒𝘰𝘳𝘭𝘦 𝘓𝘦𝘢𝘷𝘦 𝘕𝘪𝘮𝘶 🙂",
-          "𝘛𝘶𝘮ι 𝘋𝘢𝘬𝘭𝘦𝘪 𝘊𝘰𝘭𝘦 𝘈𝘴ι 🙆‍♀️", "ওই জান এতোবার ডাকো কেন 🥹", "আমাকে না ডেকে সিয়াম ভাই কে প্রোপোজ কর 🌷🫶",
+          "𝗜 𝗟𝗼𝘃𝗲 𝗬𝗼𝘂 😻🙈Ummmmma😘😘 ৬ তানি করলাম 🐸🤣", "𝘌𝘵𝘰 𝘋𝘢𝘬𝘰 𝘒𝘦นน 𝘚𝘶𝘯𝘴𝘪 𝘛𝘰 🙆‍♀️", "𝘌𝘵𝘰 𝘉𝘰𝘵 𝘉𝘰𝘵 𝘒𝘰𝘳𝘭𝘦 𝘓𝘦𝘢verify 𝘕𝘪𝘮𝘶 🙂",
+          "𝘛𝘶𝘮ι 𝘋𝘢𝘬𝘭𝘦ι 𝘊𝘰𝘭𝘦 𝘈𝘴ι 🙆‍♀️", "ওই জান এতোবার ডাকো কেন 🥹", "আমাকে না ডেকে সিয়াম ভাই কে প্রোপোজ কর 🌷🫶",
           "হুম বলো পাখি 🫶🐤 ", "tumare raite bhalobashi 😘", "আমাকে ডাকছো? 🙂"
         ];
         return message.reply(funny[Math.floor(Math.random() * funny.length)], (err, info) => {
           if (!err) global.GoatBot.onReply.set(info.messageID, { commandName: "baby" });
         });
       }
+
 
       const customReply = getCustomResponse(raw);
       if (customReply) {
@@ -230,49 +251,31 @@ ${formatted}`
       const prefixes = ["baby ","bby ","xan ","bbz ","mari ","মারিয়া ","bot "];
       const prefix = prefixes.find(p => raw.startsWith(p));
       
-      let cleanQuery = raw;
       if (prefix) {
-        cleanQuery = raw.replace(prefix, "").trim();
-      }
+        const cleanQuery = raw.replace(prefix, "").trim();
 
-      if (cleanQuery) {
-        const customPrefixReply = getCustomResponse(cleanQuery);
-        if (customPrefixReply) {
-          await typing(api, threadID, 1500);
-          return message.reply(customPrefixReply, (err, info) => {
-            if (!err) global.GoatBot.onReply.set(info.messageID, { commandName: "baby" });
-          });
-        }
-
-        await typing(api, threadID, 2000);
-        const simResponse = await fetchSimsimi(cleanQuery, senderName);
-        
-        if (simResponse) {
-          const replies = Array.isArray(simResponse) ? simResponse : [simResponse];
-          for (const r of replies) {
-            await message.reply(r, (err, info) => {
+        if (cleanQuery) {
+          const customPrefixReply = getCustomResponse(cleanQuery);
+          if (customPrefixReply) {
+            await typing(api, threadID, 1500);
+            return message.reply(customPrefixReply, (err, info) => {
               if (!err) global.GoatBot.onReply.set(info.messageID, { commandName: "baby" });
             });
           }
-          return;
-        }
-      }
 
-      if (event.messageReply) {
-        try {
-          const setting = await axios.get(`${simsim}/setting`, { timeout: 8000 });
-          if (setting.data?.autoTeach) {
-            const ask = event.messageReply.body?.toLowerCase().trim();
-            const ans = raw.trim();
-            if (ask && ans && ask !== ans) {
-              setTimeout(async () => {
-                try {
-                  await axios.get(`${simsim}/teach?ask=${encodeURIComponent(ask)}&ans=${encodeURIComponent(ans)}&senderName=${encodeURIComponent(senderName)}`, { timeout: 10000 });
-                } catch {}
-              }, 500);
+          await typing(api, threadID, 2000);
+          const simResponse = await fetchSimsimi(cleanQuery, senderName);
+          
+          if (simResponse) {
+            const replies = Array.isArray(simResponse) ? simResponse : [simResponse];
+            for (const r of replies) {
+              await message.reply(r, (err, info) => {
+                if (!err) global.GoatBot.onReply.set(info.messageID, { commandName: "baby" });
+              });
             }
+            return;
           }
-        } catch {}
+        }
       }
 
     } catch (err) {
