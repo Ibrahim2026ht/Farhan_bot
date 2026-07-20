@@ -1,11 +1,34 @@
 const axios = require("axios");
 
+  function toBold(text) {
+  if (!text) return "";
+  const str = String(text);
+  const normalChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const boldChars   = "𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇𝟬𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵";
+  
+  let result = "";
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i];
+    const idx = normalChars.indexOf(char);
+    if (idx !== -1) {
+      result += boldChars.substr(idx * 2, 2);
+    } else {
+      result += char;
+    }
+  }
+  return result;
+}
+
+  function formatMessage(emoji, text) {
+  return `───────────────\n\n» ${emoji} ${text}\n\n───────────────\n\n» 👑 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍`;
+}
+
 module.exports = {
   config: {
     name: "ffinfo",
     aliases: ["freefireinfo", "ffstats"],
     version: "2.1.0",
-    author: "FARHAN-KHAN",
+    author: "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     role: 0,
     premium: false,
     description: "Show complete Free Fire player info with styled output",
@@ -19,25 +42,28 @@ module.exports = {
     try {
       const uid = args[0];
       if (!uid) {
+        const errorText = toBold("Please provide a Free Fire UID\n📌 Example: ffinfo 3060644273");
         return api.sendMessage(
-          "⚠️ Please provide a Free Fire UID\n📌 Example: ffinfo 3060644273",
+          formatMessage("⚠️", errorText),
           event.threadID,
           event.messageID
         );
       }
 
+      const waitText = toBold("Fetching Free Fire player info...");
       const wait = await api.sendMessage(
-        "⏳ Fetching Free Fire player info...",
+        formatMessage("⏳", waitText),
         event.threadID
       );
 
-      const url = `https://ff.mlbbai.com/info/?uid=${uid}`;
+      const url = `https://ff.mlbbai.com/info/?uid=${encodeURIComponent(uid)}`;
       const res = await axios.get(url);
       const data = res.data;
 
       if (!data || !data.basicInfo) {
+        const failText = toBold("Failed to fetch player data. UID may be invalid.");
         return api.editMessage(
-          "❌ Failed to fetch player data. UID may be invalid.",
+          formatMessage("❌", failText),
           wait.messageID
         );
       }
@@ -49,73 +75,103 @@ module.exports = {
       const credit = data.creditScoreInfo || {};
       const cap = data.captainBasicInfo || {};
 
-      const msg = `
-🎮 𝐅ʀᴇᴇ 𝐅ɪʀᴇ 𝐏ʟᴀʏᴇʀ 𝐈ɴꜰᴏ
-━━━━━━━━━━━━━━━━━━
-👤 𝐍ᴀᴍᴇ: ${b.nickname || "N/A"}
-🆔 𝐔ɪᴅ: ${b.accountId || uid}
-🌍 𝐑ᴇɢɪᴏɴ: ${b.region || "N/A"}
-⭐ 𝐋ᴇᴠᴇʟ: ${b.level || "N/A"}
-❤️ 𝐋ɪᴋᴇꜱ: ${b.liked || 0}
-📈 𝐄xᴘ: ${b.exp || 0}
+      // এপিআই থেকে আসা ডেটা বোল্ড করা
+      const name = toBold(b.nickname || "N/A");
+      const accountId = toBold(b.accountId || uid);
+      const region = toBold(b.region || "N/A");
+      const level = toBold(b.level || "N/A");
+      const likes = toBold(b.liked || 0);
+      const exp = toBold(b.exp || 0);
 
-🏆 𝐑ᴀɴᴋ: ${b.rank || "N/A"}
-🎯 𝐑ᴀɴᴋ 𝐏ᴏɪɴᴛꜱ: ${b.rankingPoints || 0}
-⚔️ 𝐂ꜱ 𝐑ᴀɴᴋ: ${b.csRank || "N/A"}
-🎮 𝐂ꜱ 𝐏ᴏɪɴᴛꜱ: ${b.csRankingPoints || 0}
+      const rank = toBold(b.rank || "N/A");
+      const rPoints = toBold(b.rankingPoints || 0);
+      const csRank = toBold(b.csRank || "N/A");
+      const csPoints = toBold(b.csRankingPoints || 0);
 
-👑 𝐌ᴀx 𝐑ᴀɴᴋ: ${b.maxRank || "N/A"}
-👑 𝐌ᴀx 𝐂ꜱ 𝐑ᴀɴᴋ: ${b.csMaxRank || "N/A"}
-🎟️ 𝐄ʟɪᴛᴇ 𝐏ᴀꜱꜱ: ${b.hasElitePass ? "✅ Yes" : "❌ No"}
-🏅 𝐁ᴀᴅɢᴇꜱ: ${b.badgeCnt || 0}
+      const maxRank = toBold(b.maxRank || "N/A");
+      const maxCsRank = toBold(b.csMaxRank || "N/A");
+      const elitePass = toBold(b.hasElitePass ? "Yes" : "No");
+      const badges = toBold(b.badgeCnt || 0);
 
-📅 𝐒ᴇᴀꜱᴏɴ: ${b.seasonId || "N/A"}
-🛠️ 𝐑ᴇʟᴇᴀꜱᴇ: ${b.releaseVersion || "N/A"}
-👁️ 𝐁ʀ 𝐑ᴀɴᴋ 𝐒ʜᴏᴡ: ${b.showBrRank ? "Yes" : "No"}
-👁️ 𝐂ꜱ 𝐑ᴀɴᴋ 𝐒ʜᴏᴡ: ${b.showCsRank ? "Yes" : "No"}
-⏳ 𝐀ᴄᴄᴏᴜɴᴛ 𝐂ʀᴇᴀᴛᴇ: ${new Date(b.createAt * 1000).toLocaleDateString("en-GB")}
+      const season = toBold(b.seasonId || "N/A");
+      const release = toBold(b.releaseVersion || "N/A");
+      const brShow = toBold(b.showBrRank ? "Yes" : "No");
+      const csShow = toBold(b.showCsRank ? "Yes" : "No");
+      const createTime = toBold(b.createAt ? new Date(b.createAt * 1000).toLocaleDateString("en-GB") : "N/A");
 
-🛡️ 𝐆ᴜɪʟᴅ 𝐈ɴꜰᴏ
-━━━━━━━━━━━━━━━━
-🏷️ 𝐆ᴜɪʟᴅ 𝐍ᴀᴍᴇ: ${clan.clanName || "None"}
-🆔 𝐆ᴜɪʟᴅ 𝐈ᴅ: ${clan.clanId || "N/A"}
-📊 𝐆ᴜɪʟᴅ 𝐋ᴇᴠᴇʟ: ${clan.clanLevel || "N/A"}
-👥 𝐌ᴇᴍʙᴇʀꜱ: ${clan.memberNum || 0}/${clan.capacity || 0}
-👑 𝐆ᴜɪʟᴅ 𝐋ᴇᴀᴅᴇʀ: ${cap.nickname || "N/A"} (Lv.${cap.level || "?"})
+      const gName = toBold(clan.clanName || "None");
+      const gId = toBold(clan.clanId || "N/A");
+      const gLevel = toBold(clan.clanLevel || "N/A");
+      const gMembers = toBold(`${clan.memberNum || 0}/${clan.capacity || 0}`);
+      const gLeader = toBold(`${cap.nickname || "N/A"} (Lv.${cap.level || "?"})`);
 
-🐾 𝐏ᴇᴛ 𝐈ɴꜰᴏ
-━━━━━━━━━━━━━━━━
-🐶 𝐍ᴀᴍᴇ: ${pet.name || "None"}
-📈 𝐋ᴇᴠᴇʟ: ${pet.level || "N/A"}
-⭐ 𝐄xᴘ: ${pet.exp || 0}
-🎨 𝐒ᴋɪɴ 𝐈ᴅ: ${pet.skinId || "N/A"}
+      const pName = toBold(pet.name || "None");
+      const pLevel = toBold(pet.level || "N/A");
+      const pExp = toBold(pet.exp || 0);
+      const pSkin = toBold(pet.skinId || "N/A");
 
-🌐 𝐒ᴏᴄɪᴀʟ 𝐈ɴꜰᴏ
-━━━━━━━━━━━━━━━━
-🚻 𝐆ᴇɴᴅᴇʀ: ${social.gender?.replace("Gender_", "") || "N/A"}
-🗣️ 𝐋ᴀɴɢᴜᴀɢᴇ: ${social.language?.replace("Language_", "") || "N/A"}
-✍️ 𝐒ɪɢɴᴀᴛᴜʀᴇ:
-${social.signature
-  ? social.signature.replace(/\[B]|\[C]|\[ff[0-9a-f]+]/g, "")
-  : "None"}
+      const gender = toBold(social.gender?.replace("Gender_", "") || "N/A");
+      const language = toBold(social.language?.replace("Language_", "") || "N/A");
+      const signature = toBold(social.signature ? social.signature.replace(/\[B]|\[C]|\[ff[0-9a-f]+]/g, "") : "None");
 
-🛡️ 𝐂ʀᴇᴅɪᴛ 𝐒ᴄᴏʀᴇ
-━━━━━━━━━━━━━━━━
-💯 𝐒ᴄᴏʀᴇ: ${credit.creditScore || "N/A"}
-🎁 𝐑ᴇᴡᴀʀᴅ: ${credit.rewardState?.replace("REWARD_STATE_", "") || "N/A"}
-📆 𝐏ᴇʀɪᴏᴅ 𝐄ɴᴅ: ${
-        credit.periodicSummaryEndTime
-          ? new Date(credit.periodicSummaryEndTime * 1000).toLocaleDateString("en-GB")
-          : "N/A"
-      }
+      const cScore = toBold(credit.creditScore || "N/A");
+      const cReward = toBold(credit.rewardState?.replace("REWARD_STATE_", "") || "N/A");
+      const cPeriod = toBold(credit.periodicSummaryEndTime ? new Date(credit.periodicSummaryEndTime * 1000).toLocaleDateString("en-GB") : "N/A");
 
-✨ Powered by Farhan-Khan
-`;
+        const infoBody = `${toBold("𝐅𝐑𝐄𝐄 𝐅𝐈𝐑𝐄 𝐏𝐋𝐀𝐘𝐄𝐑 𝐈𝐍𝐅𝐎")}\n` +
+        `━━━━━━━━━━━━━━━━━━\n` +
+        `${toBold("👤 𝐍𝐚𝐦𝐞:")} ${name}\n` +
+        `${toBold("🆔 𝐔𝐢𝐝:")} ${accountId}\n` +
+        `${toBold("🌍 𝐑𝐞𝐠𝐢𝐨𝐧:")} ${region}\n` +
+        `${toBold("⭐ 𝐋𝐞𝐯𝐞𝐥:")} ${level}\n` +
+        `${toBold("❤️ 𝐋𝐢𝐤𝐞𝐬:")} ${likes}\n` +
+        `${toBold("📈 𝐄𝐱𝐩:")} ${exp}\n\n` +
+        `${toBold("🏆 𝐑𝐚𝐧𝐤:")} ${rank}\n` +
+        `${toBold("🎯 𝐑𝐚𝐧𝐤 𝐏oint𝐬:")} ${rPoints}\n` +
+        `${toBold("⚔️ 𝐂𝐬 𝐑𝐚𝐧𝐤:")} ${csRank}\n` +
+        `${toBold("🎮 𝐂𝐬 𝐏oint𝐬:")} ${csPoints}\n\n` +
+        `${toBold("👑 𝐌𝐚𝐱 𝐑𝐚𝐧𝐤:")} ${maxRank}\n` +
+        `${toBold("👑 𝐌𝐚𝐱 𝐂𝐬 𝐑𝐚𝐧𝐤:")} ${maxCsRank}\n` +
+        `${toBold("🎟️ 𝐄𝐥𝐢𝐭𝐞 𝐏𝐚𝐬𝐬:")} ${elitePass}\n` +
+        `${toBold("🏅 𝐁𝐚𝐝𝐠𝐞𝐬:")} ${badges}\n\n` +
+        `${toBold("📅 𝐒𝐞𝐚𝐬𝐨𝐧:")} ${season}\n` +
+        `${toBold("🛠️ 𝐑𝐞𝐥𝐞𝐚𝐬𝐞:")} ${release}\n` +
+        `${toBold("👁️ 𝐁𝐫 𝐑𝐚𝐧𝐤 𝐒𝐡𝐨𝐰:")} ${brShow}\n` +
+        `${toBold("👁️ 𝐂𝐬 𝐑𝐚𝐧𝐤 𝐒𝐡𝐨𝐰:")} ${csShow}\n` +
+        `${toBold("⏳ 𝐀𝐜𝐜𝐨𝐮𝐧𝐭 𝐂𝐫𝐞𝐚𝐭𝐞:")} ${createTime}\n\n` +
+        `${toBold("🛡️ 𝐆𝐮𝐢𝐥𝐝 𝐈𝐧𝐟𝐨")}\n` +
+        `━━━━━━━━━━━━━━━━\n` +
+        `${toBold("🏷️ 𝐆𝐮𝐢𝐥𝐝 𝐍𝐚𝐦𝐞:")} ${gName}\n` +
+        `${toBold("🆔 𝐆𝐮𝐢𝐥𝐝 𝐈𝐝:")} ${gId}\n` +
+        `${toBold("📊 𝐆𝐮𝐢𝐥𝐝 𝐋𝐞𝐯𝐞𝐥:")} ${gLevel}\n` +
+        `${toBold("👥 𝐌𝐞𝐦𝐛𝐞𝐫𝐬:")} ${gMembers}\n` +
+        `${toBold("👑 𝐆𝐮𝐢𝐥𝐝 𝐋𝐞𝐚𝐝𝐞𝐫:")} ${gLeader}\n\n` +
+        `${toBold("🐾 𝐏𝐞𝐭 𝐈𝐧𝐟𝐨")}\n` +
+        `━━━━━━━━━━━━━━━━\n` +
+        `${toBold("🐶 𝐍𝐚𝐦𝐞:")} ${pName}\n` +
+        `${toBold("📈 𝐋𝐞𝐯𝐞𝐥:")} ${pLevel}\n` +
+        `${toBold("⭐ 𝐄𝐱𝐩:")} ${pExp}\n` +
+        `${toBold("🎨 𝐒𝐤𝐢𝐧 𝐈𝐝:")} ${pSkin}\n\n` +
+        `${toBold("🌐 𝐒𝐨𝐜𝐢𝐚𝐥 𝐈𝐧𝐟𝐨")}\n` +
+        `━━━━━━━━━━━━━━━━\n` +
+        `${toBold("🚻 𝐆𝐞𝐧𝐝𝐞𝐫:")} ${gender}\n` +
+        `${toBold("🗣️ 𝐋𝐚𝐧𝐠𝐮𝐚𝐠𝐞:")} ${language}\n` +
+        `${toBold("✍️ 𝐒𝐢𝐠𝐧𝐚𝐭𝐮𝐫𝐞:")}\n${signature}\n\n` +
+        `${toBold("🛡️ 𝐂𝐫𝐞𝐝𝐢𝐭 𝐒𝐜𝐨𝐫𝐞")}\n` +
+        `━━━━━━━━━━━━━━━━\n` +
+        `${toBold("💯 𝐒𝐜𝐨𝐫𝐞:")} ${cScore}\n` +
+        `${toBold("🎁 𝐑𝐞𝐰𝐚𝐫𝐝:")} ${cReward}\n` +
+        `${toBold("📆 𝐏𝐞𝐫𝐢𝐨𝐝 𝐄𝐧𝐝:")} ${cPeriod}`;
 
-      await api.editMessage(msg, wait.messageID);
+        await api.editMessage(
+        formatMessage("🎮", infoBody),
+        wait.messageID
+      );
+
     } catch (err) {
+      const errText = toBold(`Error: ${err.message}`);
       api.sendMessage(
-        `❌ Error: ${err.message}`,
+        formatMessage("❌", errText),
         event.threadID,
         event.messageID
       );
