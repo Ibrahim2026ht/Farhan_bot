@@ -7,6 +7,9 @@ const fs = require('fs-extra');
 const path = require('path');
 const axios = require("axios");
 
+// 🎯 নির্দিষ্ট গ্রুপ আইডি এখানে সেট করা হয়েছে
+const SPECIAL_THREAD_ID = "1018073844423801";
+
 const backgroundImages = [
     "https://i.imgur.com/XVRFwns.jpeg",
     "https://i.imgur.com/DXXvgjb.png",
@@ -23,10 +26,8 @@ const videoLinks = [
 ];
 
 const backgroundCache = new Map();
-
 let welcomeToggle = 0;
 
-// 🚬 Welcome Video Cache Folder
 const cacheFolder = path.join(__dirname, "welcome_cache_videos");
 
 async function cacheVideos() {
@@ -188,53 +189,61 @@ module.exports = {
             const threadID = event.threadID;  
             const addedUser = event.logMessageData.addedParticipants[0];  
             const addedUserId = addedUser.userFbId;  
+            const userName = addedUser.fullName;
             const botID = api.getCurrentUserID();
 
-            const threadInfo = await threadsData.get(threadID);
+            const threadInfo = await threadsData.get(threadID) || {};
             const threadName = threadInfo.threadName || "Group";  
-            const memberCount = threadInfo.members?.length || 1;  
+            const memberCount = (threadInfo.members && Array.isArray(threadInfo.members)) ? threadInfo.members.length : (threadInfo.members ? Object.keys(threadInfo.members).length : 1);  
 
-            // ✨ বটের নিজের আইডি চেক
             if (addedUserId === botID) {
-                // 🏷️ বটের নিকনেম চেঞ্জ করার লজিক
                 try {
                     await api.changeNickname("𓆩»̶̶͓͓͓̽̽̽𝆠꯭፝֟ɴɪᴊʜᴜᴍ-ᴄʜᴀᴛ-ʙᴏᴛ𝆠꯭፝֟⚜️𓆪", threadID, botID);
                 } catch (nicknameError) {
                     console.error("[Welcome] Failed to change bot nickname:", nicknameError);
                 }
 
-                // 🖼️ ইমেজ বাফার হিসেবে ডাউনলোড লজিক (যাতে ইমেজ মিস না হয়)
                 let imageStream;
+                let botJoinImgPath;
                 try {
                     const imgResponse = await axios.get("https://i.imgur.com/s8Hs77i.jpeg", {
                         responseType: "arraybuffer"
                     });
                     const tempDir = path.join(__dirname, '..', '..', 'temp');
                     await fs.ensureDir(tempDir);
-                    const botJoinImgPath = path.join(tempDir, `bot_join_${Date.now()}.jpeg`);
+                    botJoinImgPath = path.join(tempDir, `bot_join_${Date.now()}.jpeg`);
                     fs.writeFileSync(botJoinImgPath, Buffer.from(imgResponse.data));
                     imageStream = fs.createReadStream(botJoinImgPath);
-                    
-                    // ফাইল পাঠানোর পর রিমুভ করার জন্য ট্র্যাকিং
-                    setTimeout(() => {
-                        if (fs.existsSync(botJoinImgPath)) fs.unlinkSync(botJoinImgPath);
-                    }, 15000);
                 } catch (imgError) {
                     console.error("[Welcome] Bot image download failed:", imgError.message);
                 }
 
                 const msgPayload = {
-                    body: `✨ 𝗕𝗢𝗧 𝗖𝗢𝗡𝗡𝗘𝗖𝗧𝗘𝗗 ✨\n──────────────────\n👋 হ্যালো BOT EXPOSED 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 \n\n🤖 আমি 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧\n❤️ আমাকে গ্রুপে Add করার জন্য ধন্যবাদ\n\n──────────────────\n📌 𝗚𝗥𝗢𝗨𝗣 𝗜𝗡𝗙𝗢\n» 👥 𝗠𝗘𝗠𝗕𝗘𝗥𝗦 : ${memberCount}\n» 🤖 𝗣𝗥𝗘𝗙𝗜𝗫 : { , }\n\n──────────────────\n📖 𝗚𝗘𝗧 𝗦𝗧𝗔𝗥𝗧𝗘𝗗\n» /help — সকল কমান্ড দেখুন\n» call আপনার সমস্যা লেখুন\n» 📞 +𝟴𝟴𝟬𝟭𝟴𝟵𝟭𝟯𝟴𝟭𝟱𝟳\n─────────────────\n👑 𝗢𝗪𝗡𝗘𝗥 : 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍\n\n🌸 সবাইকে স্বাগতম`
+                    body: `✨ 𝗕𝗢𝗧 𝗖𝗢𝗡𝗡𝗘𝗖𝗧𝗘𝗗 ✨\n──────────────────\n👋 হ্যালো BOT EXPOSED 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 \n\n🤖 আমি 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧\n❤️ আমাকে গ্রুপে Add করার জন্য ধন্যবাদ\n\n──────────────────\n📌 𝗚𝗥𝗢𝗨𝗣 𝗜𝗡𝗙𝗢\n» 👥 𝗠𝗘𝗠𝗕𝗘𝗥𝗦 : ${memberCount}\n» 🤖 𝗣𝗥𝗘𝗙𝗜省 : { , }\n\n──────────────────\n📖 𝗚𝗘𝗧 𝗦𝗧𝗔𝗥𝗧𝗘𝗗\n» /help — সকল কমান্ড দেখুন\n» call আপনার সমস্যা লেখুন\n» 📞 +𝟴𝟴𝟬𝟭𝟴𝟵𝟭𝟯𝟴𝟭𝟱𝟳\n─────────────────\n👑 𝗢𝗪𝗡𝗘𝗥 : 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍\n\n🌸 সবাইকে স্বাগতম`
                 };
 
                 if (imageStream) {
                     msgPayload.attachment = imageStream;
                 }
 
-                return await message.reply(msgPayload);
+                await message.reply(msgPayload);
+                if (botJoinImgPath && fs.existsSync(botJoinImgPath)) {
+                    setTimeout(() => fs.unlinkSync(botJoinImgPath), 5000);
+                }
+                return;
             }
 
-            // 🌸 সাধারণ ইউজারদের জন্য প্রসেস
+            if (String(threadID) === String(SPECIAL_THREAD_ID)) {
+                const specialRulesMessage = {
+                    body: `📢 Swagatam @${userName}\n\n『░⃟̎̎̎̎̐𝄞𝐅𝐑𝐈𝐄𝐍𝐃𝐒' 𝄟≛⃝𝐕𝐈𝐃𝐄𝐎≛⃝𝄟𝐁𝐎𝐗░⃟̎̎̎̎̐』\n\n          📜 𝐕𝐈𝐃𝐄𝐎 𝐁𝐎𝐗 𝐑𝐔𝐋𝐄𝐒\n\n⚠️ গ্রুপে থাকলে নিচের নিয়মগুলো অবশ্যই মেনে চলতে হবে।\n\n1️⃣ শুধুমাত্র ভিডিও দেওয়া যাবে।\n\n2️⃣ ১৮+ বা অশ্লীল কোনো ভিডিও/কনটেন্ট\nসম্পূর্ণ নিষিদ্ধ।\n\n3️⃣ অপ্রয়োজনীয় মেনশন (@) অথবা\n📢 স্পিকার/ট্যাক্স দেওয়া সম্পূর্ণ নিষিদ্ধ।\n\n4️⃣ ইনবক্সে বিরক্ত করা বা গ্রুপ থেকে\nইনবক্সে ডাকা যাবে না।\n\n5️⃣ গালাগালি, ঝগড়া, অপমানজনক ভাষা ও\nধর্মীয়/রাজনৈতিক বিতর্কের ভিডিও\nসম্পূর্ণ নিষিদ্ধ।\n\n6️⃣ স্প্যাম, ফ্লাড বা একই পোস্ট\nবারবার দেওয়া যাবে না।\n\n7️⃣ অন্য গ্রুপ বা পেজের অযথা\nপ্রচার (Promotion) সম্পূর্ণ নিষিদ্ধ।\n\n8️⃣ একটি ভিডিওতে কমপক্ষে ৫টি রিয়্যাক্ট\nনা হওয়া পর্যন্ত দ্বিতীয় ভিডিও\nদেওয়া সম্পূর্ণ নিষিদ্ধ।\n\n9️⃣ অ্যাডমিন বা মডারেটরের সিদ্ধান্ত\nসবাইকে সম্মান করতে হবে।\n\n🔟 কোনো সমস্যা হলে সরাসরি\nঅ্যাডমিনের সাথে যোগাযোগ করুন।\n\n1️⃣1️⃣ নিয়ম ভঙ্গ করলে সতর্কতা ছাড়াই\nকিক বা রিমুভ করা হবে।\n\n━━━━━━━━━━━━━━━━━━\n\n𝗢𝗪𝗡𝗘𝗥 ➜ 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍`,
+                    mentions: [{
+                        tag: `@${userName}`,
+                        id: addedUserId
+                    }]
+                };
+                return await message.reply(specialRulesMessage);
+            }
+
             await cacheVideos();  
 
             const adderId = event.author;  
@@ -244,13 +253,11 @@ module.exports = {
                 usersData.getName(adderId)  
             ]);  
 
-            const userName = addedUser.fullName;  
             const groupImage = threadInfo.imageSrc || 'https://i.imgur.com/7Qk8k6c.png';  
             const tempDir = path.join(__dirname, '..', '..', 'temp');  
             await fs.ensureDir(tempDir);  
 
-            // 🔥 VIDEO → IMAGE → VIDEO → IMAGE  
-            if (welcomeToggle % 2 === 0) {  
+            if (welcomeToggle % 2 === 0) {
                 const randomVideo = Math.floor(Math.random() * videoLinks.length);  
                 const cachedVideo = path.join(cacheFolder, `video_${randomVideo}.mp4`);  
 
@@ -297,7 +304,7 @@ module.exports = {
             console.error("[Welcome error]:", error);  
             const addedUser = event.logMessageData.addedParticipants[0];  
             await message.send({  
-                body: `🌸 𝐖𝐞𝐥𝐜𝐨𝐦𝐞 ${addedUser.fullName}! 🌸\n━━━━━━━━━━━━\n🌷 𝐓𝐨 𝐨𝐮𝐫 𝐠𝐫𝐨𝐮𝐩 𝐟𝐚𝐦𝐢𝐥𝐲!\n🌟 𝐖𝐞'𝐫𝐞 𝐞𝐱𝐜𝐢𝐭𝐞𝐝 𝐭𝐨 𝐡𝐚𝐯𝐞 𝐲𝐨𝐮!\n🎊 𝐏𝐥𝐞𝐚𝐬𝐞 𝐢𝐧𝐭𝐫𝐨𝐝𝐮𝐜𝐞 𝐲𝐨𝐮𝐫𝐬𝐞λ𝐟!\n━━━━━━━━━━━━\n𝐇𝐚𝐯𝐞 𝐟𝐮𝐧! 😊`  
+                body: `🌸 𝐖𝐞𝐥𝐜𝐨𝐦𝐞 ${addedUser.fullName}! 🌸\n━━━━━━━━━━━━\n🌷 𝐓𝐨 𝐨𝐮𝐫 𝐠𝐫𝐨𝐮𝐩 𝐟𝐚𝐦𝐢𝐥𝐲!\n🌟 𝐖𝐞'𝐫𝐞 𝐞𝐱𝐜𝐢𝐭𝐞𝐝 𝐭𝐨 𝐡𝐚𝐯𝐞 𝐲𝐨𝐮!\n🎊 𝐏𝐥𝐞𝐚𝐬𝐞 𝐢𝐧𝐭𝐫𝐨𝐝𝐮𝐜𝐞 𝐲𝐨𝐮𝐫𝐬𝐞𝐥𝐟!\n━━━━━━━━━━━━\n𝐇𝐚𝐯𝐞 𝐟𝐮𝐧! 😊`  
             });  
         }  
     }
