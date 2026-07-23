@@ -1,7 +1,7 @@
 module.exports = {
   config: {
-    name: "sk2",
-    aliases: ["charitro", "nature", "vondo"],
+    name: "sk",
+    aliases: ["ইসকেন", "nature", "vondo"],
     version: "1.0.5",
     author: "Mr.King",
     countDown: 5,
