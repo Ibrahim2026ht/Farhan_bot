@@ -59,7 +59,7 @@ module.exports = {
 
   onStart: async function ({ api, event, args }) {
     const { threadID, messageID, body } = event;
-    const creatorName = "Farhan Khan";
+    const creatorName = "𝐒𝐈𝐘𝐀𝐌 𝐇𝐀𝐒𝐀𝐍";
 
     let query = args.join(" ");
 
@@ -121,7 +121,7 @@ module.exports = {
           `━━━━━━━━━━━━━━━━━━\n` +
           `📖 Title: ${video.title}\n` +
           `⏱ Duration: ${video.time || "N/A"}\n` +
-          `🖌️ Power by: ${creatorName}\n` +
+          `🖌️ 𝐏𝐎𝐖𝐄𝐑 𝐁𝐘: ${creatorName}\n` +
           `━━━━━━━━━━━━━━━━━━`,
         attachment: fs.createReadStream(filePath)
       };
