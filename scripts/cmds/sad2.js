@@ -6,19 +6,17 @@ module.exports.config = {
   name: "sad2",
   version: "1.0.1",
   role: 0,
-  author: "ꜰᴀʀʜᴀɴ-ᴋʜᴀɴ",
+  author: "💋𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍👑",
   description: "🎬 প্রতিবার কমান্ডে আলাদা ভিডিও এবং স্যাড ক্যাপশন পাঠাবে",
   category: "Fun",
   countDown: 5,
 };
 
-// ✅ বটের মূল ক্যাশের ক্ষতি না করে সম্পূর্ণ আলাদা ক্যাশ ফোল্ডার তৈরি
 const sab2CacheDir = path.join(__dirname, "sab2_cache");
 if (!fs.existsSync(sab2CacheDir)) {
   fs.mkdirSync(sab2CacheDir, { recursive: true });
 }
 
-// ✅ আপনার দেওয়া ৩৫টি ইউনিক লিংক এবং সাথে মানানসই সুন্দর শর্ট ও স্যাড ক্যাপশন সেটআপ
 const videoData = [
   { url: "https://files.catbox.moe/2ii8c7.mp4", text: "কিছু গল্প কখনো শেষ হয় না, শুধু চরিত্রগুলো বদলে যায়..!! 🥀" },
   { url: "https://files.catbox.moe/ah0s9r.mp4", text: "সবচেয়ে কঠিন হলো কারো অবহেলা পাওয়ার পরও তাকেই ভালোবেসে যাওয়া..!! 💔" },
@@ -54,32 +52,65 @@ const videoData = [
   { url: "https://files.catbox.moe/rbp7hg.mp4", text: "আমরা সবাই ভালো থাকার অভিনয় করি, কিন্তু ভেতরের খবর কেউ রাখে না..!! 🥀" },
   { url: "https://files.catbox.moe/yiigq2.mp4", text: "কিছু মানুষের নীরবতা মানে অহংকার নয়, তাদের সহ্য ক্ষমতার শেষ সীমানা..!! 💔" },
   { url: "https://files.catbox.moe/51d6w6.mp4", text: "আজ আমি অন্যের চোখের বালি, অথচ একদিন কারো চোখের মণি ছিলাম..!! 🖤" },
-  { url: "https://files.catbox.moe/zw6atp.mp4", text: "আশা করি তুমি তোমার নতুন জীবনে অনেক সুখী হবে, আমার গল্প এখানেই সমাপ্ত..!! 🥀💔" }
+  { url: "https://files.catbox.moe/zw6atp.mp4", text: "আশা করি তুমি তোমার নতুন জীবনে অনেক সুখী হবে, আমার গল্প এখানেই সমাপ্ত..!! 🥀💔" },
+  { url: "https://files.catbox.moe/s6yws3.mp4", text: "অনুভূতির কাছে হেরে যাওয়া মানুষগুলোই শেষমেশ নিস্তব্ধ হতে শেখে..!! 🖤" },
+  { url: "https://files.catbox.moe/s0buu3.mp4", text: "কিছু না বলা কথা বুকে চেপে রাখাই হয়তো আমাদের একমাত্র নিয়তি..!! 🥀" },
+  { url: "https://files.catbox.moe/2q4cuv.mp4", text: "যে হৃদয়ে একসময় তুমি লুকিয়ে ছিলে, আজ সে হৃদয়ে শুধু শূন্যতা..!! 💔" },
+  { url: "https://files.catbox.moe/at0bri.mp4", text: "ইচ্ছে করেই দূরত্ব বাড়িয়ে দিয়েছি, কারণ অবহেলা নেওয়ার ক্ষমতা আর নেই..!! 🥺" },
+  { url: "https://files.catbox.moe/l81qh6.mp4", text: "কাউকে এতটা ভেবো না যে, সে চলে গেলে নিজের ছায়াকেও অচেনা মনে হয়..!! 🖤" },
+  { url: "https://files.catbox.moe/hmzyvj.mp4", text: "অভিমানের শহর বড়ই নিঃসঙ্গ, সেখানে শুধুই বিষাদের বাস..!! 🥀" },
+  { url: "https://files.catbox.moe/l07czp.mp4", text: "তুমি চলে গেছো ঠিকই, কিন্তু আমার অন্ধকারের সঙ্গী হয়ে রয়ে গেছো..!! 💔" },
+  { url: "https://files.catbox.moe/f40jx9.mp4", text: "কিছু বিচ্ছেদ কখনো বলে আসে না, নীরবে সব ধ্বংস করে দিয়ে যায়..!! 🥺" },
+  { url: "https://files.catbox.moe/bdjq2l.mp4", text: "স্মৃতিগুলো যে এত কষ্ট দেবে, জানলে হয়তো কখোনো স্মৃতির পাতাগুলো খুলতাম না..!! 🖤" },
+  { url: "https://files.catbox.moe/lixz5d.mp4", text: "আমরা দুজন এখন অচেনা দুটি পথ, যার মাঝখানে শুধুই নীরবতা..!! 🥀" },
+  { url: "https://files.catbox.moe/5mgnha.mp4", text: "অপেক্ষার প্রহর এত দীর্ঘ হবে, কখনো ভাবতেও পারিনি..!! 💔" },
+  { url: "https://files.catbox.moe/c26k6y.mp4", text: "যার হাতে হাসতে শিখেছিলাম, আজ তার কারণেই চোখের জল ফেলা অভ্যাস..!! 🥺" },
+  { url: "https://files.catbox.moe/yxd6xp.mp4", text: "কথা কাটাকাটির চেয়ে নীরব বিচ্ছেদ অনেক বেশি ব্যথাদায়ক..!! 🖤" },
+  { url: "https://files.catbox.moe/irrwss.mp4", text: "একটু ভালোবাসার বিনিময়ে এত অপমান পাবো তা ভাবিনি কখনো..!! 🥀" },
+  { url: "https://files.catbox.moe/prbrd5.mp4", text: "যাকে জীবনের শেষ আশ্রয় ভেবেছিলাম, সে-ই মোড় ঘুরিয়ে দিলো..!! 💔" },
+  { url: "https://files.catbox.moe/raiwss.mp4", text: "নীরব কান্নার আওয়াজ হয়তো কেউ শোনে না, কিন্তু হৃদয় চুরমার করে দেয়..!! 🥺" },
+  { url: "https://files.catbox.moe/hc7adh.mp4", text: "তোমার স্মৃতির মেলায় আজ আমি এক নিঃস্ব পথিক..!! 🖤" },
+  { url: "https://files.catbox.moe/0gkumw.mp4", text: "কিছু স্বপ্নের সমাধি মনের ভেতর গোপনে গড়ে ওঠে..!! 🥀" },
+  { url: "https://files.catbox.moe/4msm5c.mp4", text: "তুমি তো ভুলে গেলে সহজেই, কিন্তু আমার যে পুরো পৃথিবীটাই থমকে গেলো..!! 💔" },
+  { url: "https://files.catbox.moe/oqmkc3.mp4", text: "মিথ্যা বিশ্বাসের চেয়ে সত্যি দূরত্ব অনেক বেশি শান্তির..!! 🥺" },
+  { url: "https://files.catbox.moe/ydz3xz.mp4", text: "আমার নীরবতাই এখন আমার শেষ আশ্রয়স্থল..!! 🖤" },
+  { url: "https://files.catbox.moe/mwyctm.mp4", text: "কিছু গল্প অসম্পূর্ণ রেখেই বিধাতা শেষ করে দেন..!! 🥀" },
+  { url: "https://files.catbox.moe/fejaj9.mp4", text: "একলা থাকার মধ্যে কোনো ছলনা নেই, অন্তত মন ভাঙার ভয় নেই..!! 💔" },
+  { url: "https://files.catbox.moe/da9cfm.mp4", text: "চোখের পানি মুছে ফেলার মতো একজন মানুষও পাশে নেই..!! 🥺" },
+  { url: "https://files.catbox.moe/78whqz.mp4", text: "ভাঙা মন নিয়ে চলার চেয়ে থমকে থাকা অনেক ভালো..!! 🖤" },
+  { url: "https://files.catbox.moe/jzcpie.mp4", text: "সময়ের সাথে ক্ষতের দাগ হয়তো মেলায়, কিন্তু ব্যথা থেকে যায়..!! 🥀" },
+  { url: "https://files.catbox.moe/j7nhga.mp4", text: "আজকের বিষাদময় রাত হয়তো শেষ হবে, কিন্তু মানসিক ক্লান্তি দূর হবে না..!! 💔" },
+  { url: "https://files.catbox.moe/n2lzzl.mp4", text: "তুমি সুখী হও অন্য কারো হয়ে, আমি নিঃসঙ্গতাই আঁকড়ে রাখি..!! 🥺" },
+  { url: "https://files.catbox.moe/h4aikd.mp4", text: "ভালোবাসার পরিণাম এত কঠিন তা জানা ছিল না..!! 🖤" },
+  { url: "https://files.catbox.moe/5bqna4.mp4", text: "যার উপস্থিতি সবচেয়ে মধুর ছিল, তার অনুপস্থিতি সবচেয়ে বিষাক্ত..!! 🥀" },
+  { url: "https://files.catbox.moe/thakez.mp4", text: "শেষ বিকেলের আলো ছড়িয়ে যেমন আঁধার নামে, তেমনি আমার জীবনও আঁধারে ঢাকা..!! 💔" }
 ];
 
-// গ্লোবাল ভ্যারিয়েবল কাউন্টার রাখার জন্য (প্রতিবার রান হলে ইন্ডেক্স বাড়বে)
-if (global.sad2Index === undefined) {
-  global.sad2Index = 0;
+if (!global.sad2PlayedHistory) {
+  global.sad2PlayedHistory = [];
 }
 
-// ✅ এরর ফিক্স: মডিউলের জন্য অনস্টার্ট ফাংশন সেটআপ করা হলো
 module.exports.onStart = async function ({ api, event }) {
   const { threadID, messageID } = event;
 
   try {
-    // বর্তমান ইন্ডেক্সের ডেটা নেওয়া
-    const currentIndex = global.sad2Index;
-    const currentVideo = videoData[currentIndex];
+    if (global.sad2PlayedHistory.length >= videoData.length) {
+      global.sad2PlayedHistory = [];
+    }
 
-    // ভিডিওর ইউনিক নাম এবং পাথ তৈরি
-    const videoName = `sad2_video_${currentIndex}.mp4`;
+    let randomIndex;
+    do {
+      randomIndex = Math.floor(Math.random() * videoData.length);
+    } while (global.sad2PlayedHistory.includes(randomIndex));
+
+    global.sad2PlayedHistory.push(randomIndex);
+
+    const currentVideo = videoData[randomIndex];
+    const videoName = `sad2_video_${randomIndex}.mp4`;
     const videoPath = path.join(sab2CacheDir, videoName);
 
-    // ইউজারকে একটি ওয়েটিং মেসেজ দেওয়া
     api.sendMessage("⏳ 𝗟𝗢𝗔𝗗𝗜𝗡𝗚 · 𝗣𝗟𝗘𝗔𝗦𝗘 𝗪𝗔𝗜𝗧...", threadID, async (err, info) => {
-      
       try {
-        // ভিডিওটি আগে ডাউনলোড করা না থাকলে নতুন করে ডাউনলোড হবে
         if (!fs.existsSync(videoPath) || fs.statSync(videoPath).size === 0) {
           const response = await axios.get(currentVideo.url, {
             responseType: "arraybuffer",
@@ -87,22 +118,19 @@ module.exports.onStart = async function ({ api, event }) {
           fs.writeFileSync(videoPath, Buffer.from(response.data));
         }
 
-        // ওয়েটিং মেসেজটি ডিলিট (unsend) করা
         if (info && info.messageID) {
           api.unsendMessage(info.messageID);
         }
 
-        // সুন্দর ক্যাপশন ডিজাইন
         const caption = `
 ╭───────────────⭓
   ${currentVideo.text}
- ───────────────⭓
+───────────────⭓
 👑  𝗢𝗪𝗡𝗘𝗥 ➜
     𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑  
 ╰───────────────⭓
 `;
 
-        // ভিডিও এবং চ্যাট ক্যাপশন একসাথে পাঠানো
         api.sendMessage(
           {
             body: caption,
@@ -111,9 +139,6 @@ module.exports.onStart = async function ({ api, event }) {
           threadID,
           messageID
         );
-
-        // ইন্ডেক্স পরবর্তী ভিডিওর জন্য আপডেট করা (৩৫টি পার হলে আবার ০ থেকে শুরু হবে)
-        global.sad2Index = (global.sad2Index + 1) % videoData.length;
 
       } catch (downloadError) {
         console.error("❌ Sad2 Download Error:", downloadError);
