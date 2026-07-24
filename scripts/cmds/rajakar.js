@@ -7,7 +7,7 @@ module.exports = {
   config: {
     name: "rajakar",
     version: "12.0.5",
-    author: "MR_FARHAÑ",
+    author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     countDown: 1,
     role: 0,
     category: "fun",
@@ -64,9 +64,8 @@ module.exports = {
       const buffer = canvas.toBuffer("image/png");
       fs.writeFileSync(imgPath, buffer);
 
-      // All Bengali text changed to English
       return api.sendMessage({
-        body: `‎এই যে দেখেন আমাদের নতুন রাজাকার: ${userName}`,
+        body: `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ এই যে দেখেন আমাদের নতুন রাজাকার: ${userName}\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
         mentions: [{ tag: userName, id: targetID }],
         attachment: fs.createReadStream(imgPath)
       }, threadID, () => {
@@ -75,7 +74,7 @@ module.exports = {
 
     } catch (error) {
       console.log("RAJAKAR ERROR:", error);
-      return api.sendMessage("Something went wrong, please try again later.", threadID, messageID);
+      return api.sendMessage("» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ❌ 𝗦𝗼𝗺𝗲𝘁𝗵𝗶𝗻𝗴 𝗪𝗲𝗻𝘁 𝗪𝗿𝗼𝗻𝗴!\n» 🔄 𝗣𝗹𝗲𝗮𝘀𝗲 𝗧𝗿𝘆 𝗔𝗴𝗮𝗶𝗻 𝗟𝗮𝘁𝗲𝗿.\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧", threadID, messageID);
     }
   }
 };
