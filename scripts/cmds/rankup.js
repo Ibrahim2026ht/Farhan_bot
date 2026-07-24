@@ -6,7 +6,7 @@ module.exports = {
 	config: {
 		name: "rankup",
 		version: "1.4",
-		author: "NTKhang",
+		author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
 		countDown: 5,
 		role: 0,
 		description: {
@@ -24,16 +24,16 @@ module.exports = {
 
 	langs: {
 		vi: {
-			syntaxError: "Sai cú pháp, chỉ có thể dùng {pn} on hoặc {pn} off",
-			turnedOn: "Đã bật thông báo level up",
-			turnedOff: "Đã tắt thông báo level up",
-			notiMessage: "🎉🎉 chúc mừng bạn đạt level %1"
+			syntaxError: "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ❌ 𝗦𝘆𝗻𝘁𝗮𝘅 𝗘𝗿𝗿𝗼𝗿!\n» 📖 শুধু ব্যবহার করুন:\n» ⚡ rankup 𝗼𝗻\n» ⚡ rankup 𝗼𝗳𝗳\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+			turnedOn: "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ✅ 𝗗𝗮 𝗯𝗮𝘁 𝘁𝗵𝗼𝗻𝗴 𝗯𝗮𝗼 𝗹𝗲𝘃𝗲𝗹 𝘂𝗽\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+			turnedOff: "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ✅ 𝗗𝗮 𝘁𝗮𝘁 𝘁𝗵𝗼𝗻𝗴 𝗯𝗮𝗼 𝗹𝗲𝘃𝗲𝗹 𝘂𝗽\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+			notiMessage: "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» 👑👑 𝗖𝗼𝗻𝗴𝗿𝗮𝘁𝘂𝗹𝗮𝘁𝗶𝗼𝗻𝘀!\n» 🆙 𝗥𝗲𝗮𝗰𝗵𝗲𝗱 𝗹𝗲𝘃𝗲𝗹 %1\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧"
 		},
 		en: {
-			syntaxError: "Syntax error, only use {pn} on or {pn} off",
-			turnedOn: "Turned on level up notification",
-			turnedOff: "Turned off level up notification",
-			notiMessage: "🎉🎉 Congratulations on reaching level %1"
+			syntaxError: "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ❌ 𝗦𝘆𝗻𝘁𝗮𝘅 𝗘𝗿𝗿𝗼𝗿!\n» 📖 শুধু ব্যবহার করুন:\n» ⚡ rankup 𝗼𝗻\n» ⚡ rankup 𝗼𝗳𝗳\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+			turnedOn: "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ✅ Turn on level up notification\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+			turnedOff: "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ✅ Turn off level up notification\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+			notiMessage: "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» 🎉🎉 Congratulations on reaching level %1\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧"
 		}
 	},
 
@@ -60,7 +60,6 @@ module.exports = {
 			if (customMessage) {
 				userData = await usersData.get(event.senderID);
 				customMessage = customMessage
-					// .replace(/{userName}/g, userData.name)
 					.replace(/{oldRank}/g, currentLevel - 1)
 					.replace(/{currentRank}/g, currentLevel);
 				if (customMessage.includes("{userNameTag}")) {
