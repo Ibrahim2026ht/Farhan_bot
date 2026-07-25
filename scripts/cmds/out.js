@@ -2,11 +2,11 @@ module.exports = {
   config: {
     name: "out",
     version: "2.0",
-    author: "FARHAN-KHAN",
+    author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     countDown: 5,
     role: 2,
-    shortDescription: "বটকে গ্রুপ থেকে বের করে দেওয়া",
-    longDescription: "এই কমান্ডের মাধ্যমে বটকে বর্তমান বা নির্দিষ্ট গ্রুপ থেকে বের করে দেওয়া হয়।",
+    shortDescription: "বটকে গ্রুপ থেকে বের করে দেওয়া",
+    longDescription: "এই কমান্ডের মাধ্যমে বটকে বর্তমান বা নির্দিষ্ট গ্রুপ থেকে বের করে দেওয়া হয়।",
     category: "owner",
     guide: {
       en: "{pn} [threadID (optional)]",
@@ -17,7 +17,6 @@ module.exports = {
     const botID = api.getCurrentUserID();
     const targetThread = args[0] || event.threadID;
 
-    // 🔥 REAL TIME DATE & TIME (LIVE)
     const now = new Date();
 
     const date = now.toLocaleDateString("en-GB", {
@@ -32,8 +31,7 @@ module.exports = {
       hour12: true
     });
 
-    const message = `
-╭━━━━━━━━━━━━━━╮
+    const message = `╭━━━━━━━━━━━━━━╮
 ┃ 👑 𝆠፝𝐒𝐈𝐘𝐀𝐌 👑 ┃
 ╰━━━━━━━━━━━━━━╯
 ╭──────────────╮
@@ -45,18 +43,24 @@ module.exports = {
 
 ╭━━━━━━━━━━━━━━╮
 ┃ 👑 𝆠፝𝐍𝐈𝐉𝐇𝐔𝐌 👑 ┃
-╰━━━━━━━━━━━━━━╯
-`;
+╰━━━━━━━━━━━━━━╯`;
 
     try {
       await api.sendMessage(message, targetThread);
       await api.removeUserFromGroup(botID, targetThread);
     } catch (error) {
       console.error(error);
-      return api.sendMessage(
-        "❌ বের হতে পারলাম না! হয়তো আমি অ্যাডমিন না বা কোনো সমস্যা হয়েছে।",
-        event.threadID
-      );
+      
+      const errorMsg = `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+
+───────────────
+» ❌ বের হতে পারলাম না!
+» ⚠️ আমি অ্যাডমিন না বা
+» 🛠️ কোনো সমস্যা হয়েছে।
+───────────────
+» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`;
+
+      return api.sendMessage(errorMsg, event.threadID);
     }
   },
 };
