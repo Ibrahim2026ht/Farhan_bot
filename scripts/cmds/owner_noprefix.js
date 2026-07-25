@@ -1,7 +1,4 @@
-// 👑 Owner: 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
-// Enterprise-Grade Owner/Admin Prefix Bypass Engine (v3.0.2) - Double Reply Fixed
-
-const OWNER_UID = "61590360434650";
+const OWNER_UID = "61591677282661";
 
 // Global Memory State and Garbage Collection Initialization
 if (!global.__SiyamSpamRegistry) global.__SiyamSpamRegistry = new Map();
@@ -72,6 +69,11 @@ module.exports = {
     category: "system"
   },
 
+  languages: {
+    vi: {},
+    en: {}
+  },
+
   onStart: async function () {
     return;
   },
@@ -140,7 +142,7 @@ module.exports = {
       // ────────────────────────────────────────────────────────
       const disabledCommands = global.GoatBot?.config?.commandDisabled || [];
       if (disabledCommands.includes(command.config?.name)) {
-        // ফালতু কোনো ওয়ার্নিং দিয়ে চ্যাট স্প্যাম করবে না, সাইলেন্ট এক্সিট
+        // ফালতু কোনো ওয়ার্নিং দিয়ে চ্যাট স্প্যাম করবে না, সাইলেন্ট এক্সিট
         return;
       }
 
@@ -160,7 +162,7 @@ module.exports = {
       };
 
       try {
-        // শুধুমাত্র প্রিফিক্স ছাড়া মেসেজের ক্ষেত্রে কমান্ডটি পারফেক্টলি একবারই রান হবে
+        // শুধুমাত্র প্রিফিক্স ছাড়া মেসেজের ক্ষেত্রে কমান্ডটি পারফেক্টলি একবারই রান হবে
         await command.onStart(clonedParams);
         logger.info(`SUCCESS: No-Prefix [${commandName}] successfully invoked by: ${senderID}`);
       } catch (execError) {
