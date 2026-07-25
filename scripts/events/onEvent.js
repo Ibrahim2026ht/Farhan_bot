@@ -4,7 +4,7 @@ module.exports = {
 	config: {
 		name: "onEvent",
 		version: "1.1",
-		author: "MR_FARHAN",
+		author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
 		description: "Loop to all event in global.GoatBot.onEvent and run when have new event",
 		category: "events"
 	},
