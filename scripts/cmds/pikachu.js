@@ -6,7 +6,7 @@ module.exports = {
   config: {
     name: "pikachu",
     version: "1.0",
-    author: "FARHAN-KHAN",
+    author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     countDown: 5,
     role: 0,
     shortDescription: {
@@ -23,8 +23,8 @@ module.exports = {
 
   langs: {
     en: {
-      missing: "❌ | Please provide text to put on the Pikachu image.",
-      error: "❌ | Failed to generate Pikachu image."
+      missing: "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗨𝗦𝗔𝗚𝗘\n» 📌 অনুগ্রহ করে পিকাচু ইমেজে\n» 📝 বসানোর জন্য কিছু টেক্সট লিখুন!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+      error: "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗘𝗥𝗥𝗢𝗥\n» ❌ পিকাচু ইমেজ তৈরি করতে সমস্যা হয়েছে!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧"
     }
   },
 
@@ -38,11 +38,14 @@ module.exports = {
         responseType: "arraybuffer"
       });
 
-      const filePath = path.join(__dirname, "cache", `pikachu_${Date.now()}.png`);
+      const cacheDir = path.join(__dirname, "cache");
+      if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir);
+
+      const filePath = path.join(cacheDir, `pikachu_${Date.now()}.png`);
       fs.writeFileSync(filePath, res.data);
 
       message.reply({
-        body: `⚡ Here's your Pikachu image!`,
+        body: `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚡ 𝗣𝗜𝗞𝗔𝗖𝗛𝗨 𝗜𝗠𝗔𝗚𝗘\n» 💛 এই নিন আপনার পিকাচু পিকচার!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
         attachment: fs.createReadStream(filePath)
       }, () => fs.unlinkSync(filePath));
     } catch (err) {
