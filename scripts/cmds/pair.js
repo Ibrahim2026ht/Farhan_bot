@@ -1,25 +1,39 @@
 const axios = require("axios");
 const { createCanvas, loadImage } = require("canvas");
-const fs = require("fs");
+const fs = require("fs-extra");
 const path = require("path");
 
 module.exports = {
   config: {
     name: "pair",
-    author: "FARHAN-KHAN",
+    aliases: ["match", "couple"],
+    version: "2.0",
+    author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     category: "love",
+    countDown: 5,
+    role: 0,
+    shortDescription: { en: "Find a love match in the group" },
+    guide: { en: "{pn}" }
   },
 
   onStart: async function ({ api, event, usersData }) {
+    const cacheDir = path.join(__dirname, "cache");
+    fs.ensureDirSync(cacheDir);
+    const outputPath = path.join(cacheDir, `pair_${event.senderID}_${Date.now()}.png`);
+
     try {
       const senderData = await usersData.get(event.senderID);
       const senderName = senderData.name;
       const threadData = await api.getThreadInfo(event.threadID);
-      const users = threadData.userInfo;
+      const users = threadData.userInfo || [];
 
       const myData = users.find((user) => user.id === event.senderID);
       if (!myData || !myData.gender) {
-        return api.sendMessage("⚠️ Could not determine your gender.", event.threadID, (err) => {}, event.messageID);
+        return api.sendMessage(
+          "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗪𝗔𝗥𝗡𝗜𝗡𝗚\n» ❌ আপনার জেন্ডার নির্ধারণ করা যায়নি!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+          event.threadID,
+          event.messageID
+        );
       }
 
       const myGender = myData.gender.toUpperCase();
@@ -30,11 +44,19 @@ module.exports = {
       } else if (myGender === "FEMALE") {
         matchCandidates = users.filter(user => user.gender === "MALE" && user.id !== event.senderID);
       } else {
-        return api.sendMessage("⚠️ Your gender is undefined. Cannot find a match.", event.threadID, (err) => {}, event.messageID);
+        return api.sendMessage(
+          "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗪𝗔𝗥𝗡𝗜𝗡𝗚\n» ❌ আপনার জেন্ডার ডিফাইন করা নেই!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+          event.threadID,
+          event.messageID
+        );
       }
 
       if (matchCandidates.length === 0) {
-        return api.sendMessage("❌ No suitable match found in the group.", event.threadID, (err) => {}, event.messageID);
+        return api.sendMessage(
+          "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗡𝗢 𝗠𝗔𝗧𝗖𝗛\n» ❌ গ্রুপে বিপরীত লিঙ্গের কোনো মেম্বার পাওয়া যায়নি!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+          event.threadID,
+          event.messageID
+        );
       }
 
       const selectedMatch = matchCandidates[Math.floor(Math.random() * matchCandidates.length)];
@@ -45,19 +67,20 @@ module.exports = {
       const canvas = createCanvas(width, height);
       const ctx = canvas.getContext("2d");
 
-      // ✅ Use your given background
+      // Background image
       const background = await loadImage("https://i.postimg.cc/pdv5dFVX/611905695-855684437229208-8377464727643815456-n.png");
       ctx.drawImage(background, 0, 0, width, height);
 
-      // Load profile pictures
+      // Profile pictures
+      const token = "6628568379%7Cc1e620fa708a1d5696fb991c1bde5662";
       const sIdImage = await loadImage(
-        `https://graph.facebook.com/${event.senderID}/picture?width=720&height=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`
+        `https://graph.facebook.com/${event.senderID}/picture?width=720&height=720&access_token=${token}`
       );
       const pairPersonImage = await loadImage(
-        `https://graph.facebook.com/${selectedMatch.id}/picture?width=720&height=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`
+        `https://graph.facebook.com/${selectedMatch.id}/picture?width=720&height=720&access_token=${token}`
       );
 
-      // Draw circular avatars (same position)
+      // Draw circular avatars
       function drawCircle(ctx, img, x, y, size) {
         ctx.save();
         ctx.beginPath();
@@ -71,40 +94,40 @@ module.exports = {
       drawCircle(ctx, sIdImage, 385, 40, 170);
       drawCircle(ctx, pairPersonImage, width - 213, 190, 170);
 
-      // Save to file
-      const outputPath = path.join(__dirname, "pair_output.png");
-      const out = fs.createWriteStream(outputPath);
-      const stream = canvas.createPNGStream();
-      stream.pipe(out);
+      // Write canvas to file
+      const imageBuffer = canvas.toBuffer();
+      fs.writeFileSync(outputPath, imageBuffer);
 
-      out.on("finish", () => {
-        const lovePercent = Math.floor(Math.random() * 31) + 70;
+      const lovePercent = Math.floor(Math.random() * 31) + 70;
 
-        const message = `🥰𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹 𝗽𝗮𝗶𝗿𝗶𝗻𝗴
-・${senderName} 🎀
-・${matchName} 🎀
-💌 𝗪𝗶𝘀𝗵 𝘆𝗼𝘂 𝘁𝘄𝗼 𝗵𝘂𝗻𝗱𝗿𝗲𝗱 𝘆𝗲𝗮𝗿𝘀 𝗼𝗳 𝗵𝗮𝗽𝗽𝗶𝗻𝗲𝘀𝘀 ❤️❤️
+      const messageText = 
+        `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n` +
+        `» 💗 𝗦𝗨𝗖𝗖𝗘𝗦𝗦𝗙𝗨𝗟 𝗣𝗔𝗜𝗥𝗜𝗡𝗚\n` +
+        `» 👤 ${senderName}\n` +
+        `» 👤 ${matchName}\n` +
+        `» 💌 আপনাদের দুজনের শত বছরের সুখী জীবন কামনা করি!\n` +
+        `» 💙 ভালোবাসার শতকরা হার: ${lovePercent}%\n───────────────\n` +
+        `» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`;
 
-𝗟𝗼𝘃𝗲 𝗣𝗲𝗿𝗰𝗲𝗻𝘁𝗮𝗴𝗲: ${lovePercent}% 💙`;
-
-        api.sendMessage(
-          {
-            body: message,
-            attachment: fs.createReadStream(outputPath),
-          },
-          event.threadID,
-          () => {
-            fs.unlinkSync(outputPath);
-          },
-          event.messageID
-        );
-      });
-    } catch (error) {
       api.sendMessage(
-        "❌ An error occurred while trying to find a match.\n" + error.message,
+        {
+          body: messageText,
+          attachment: fs.createReadStream(outputPath)
+        },
+        event.threadID,
+        () => fs.removeSync(outputPath),
+        event.messageID
+      );
+
+    } catch (error) {
+      console.error("Pair Command Error:", error);
+      if (fs.existsSync(outputPath)) fs.removeSync(outputPath);
+
+      api.sendMessage(
+        `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗘𝗥𝗥𝗢𝗥\n» ❌ জোড়া তৈরি করতে সমস্যা হয়েছে! পরে আবার চেষ্টা করুন।\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
         event.threadID,
         event.messageID
       );
     }
-  },
+  }
 };
