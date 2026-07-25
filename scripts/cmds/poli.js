@@ -10,7 +10,7 @@ const baseApiUrl = async () => {
 module.exports = {
   config: {
     name: "poli",
-    author: "FARHAN-KHAN",
+    author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     version: "1.7",
     cooldowns: 10,
     role: 0,
@@ -22,14 +22,22 @@ module.exports = {
 
   onStart: async function ({ message, args, api, event }) {
     if (args.length === 0) {
-      return api.sendMessage("❌ | Please provide a prompt.", event.threadID, event.messageID);
+      return api.sendMessage(
+        "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗨𝗦𝗔𝗚𝗘\n» 📌 অনুগ্রহ করে একটি \n» 🪂 প্রম্পট লিখুন!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧", 
+        event.threadID, 
+        event.messageID
+      );
     }
 
     const prompt = args.join(" ");
     const cacheDir = path.join(__dirname, "cache");
     if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir);
 
-    api.sendMessage("𝐖𝐚𝐢𝐭 𝐤𝐨𝐫𝐨 𝐣𝐚𝐧 <😘", event.threadID, event.messageID);
+    api.sendMessage(
+      "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» 🎨 𝗜𝗠𝗔𝗚𝗘 𝗚𝗘𝗡𝗘𝗥𝗔𝗧𝗜𝗡𝗚\n» ⏳ ওয়েট করো জান <😘\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧", 
+      event.threadID, 
+      event.messageID
+    );
 
     try {
       const styles = ["ultra detailed", "4k resolution", "realistic lighting", "artstation", "digital painting"];
@@ -54,13 +62,15 @@ module.exports = {
 
       const attachments = imagePaths.map(p => fs.createReadStream(p));
       message.reply({
-        body: "✅ | Here are images generated from your prompt:",
+        body: `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» 🖼️ 𝗚𝗘𝗡𝗘𝗥𝗔𝗧𝗘𝗗 𝗜𝗠𝗔𝗚𝗘𝗦\n» ✨ আপনার প্রম্পট অনুযায়ী ছবি প্রস্তুত!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
         attachment: attachments
       });
 
     } catch (error) {
       console.error("Image generation error:", error);
-      message.reply("❌ | Couldn't generate images. Try again later.");
+      message.reply(
+        "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗘𝗥𝗥𝗢𝗥\n» ❌ ছবি তৈরি করা সম্ভব হয়নি!\n» 🔄 পরবর্তীতে আবার চেষ্টা করুন।\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧"
+      );
     }
   }
 };
