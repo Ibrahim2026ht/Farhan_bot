@@ -18,7 +18,7 @@ module.exports = {
 	config: {
 		name: "commandName", // Name of command, it must be unique to identify with other commands
 		version: "1.0", // Version of command
-		author: "NTKhang", // Author of command
+		author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍", // Author of command
 		category: "events" // Category of command, it must be "events" to identify with other commands
 	},
 
