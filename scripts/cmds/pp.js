@@ -5,8 +5,8 @@ const request = require("request");
 module.exports = {
   config: {
     name: "pp",
-    version: "1.0.0",
-    author: "FARHAN-KHAN",
+    version: "1.0.1",
+    author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     countDown: 3,
     role: 0,
     shortDescription: "Facebook প্রোফাইল পিকচার দেখাবে 📸",
@@ -33,7 +33,7 @@ module.exports = {
         uid = Object.keys(event.mentions)[0];
       }
 
-      // ৩️⃣ লিংক দেওয়া থাকলে
+      // ৩️⃣ লিংক দেওয়া থাকলে
       else if (args[0] && args[0].includes(".com/")) {
         const resID = await api.getUID(args[0]);
         uid = resID;
@@ -51,11 +51,7 @@ module.exports = {
       const callback = () => {
         api.sendMessage(
           {
-            body: `✿•≫────•『PP』•────≪•✿
-𝐇𝐞𝐫𝐞 𝐢𝐬 𝐭𝐡𝐞 𝐩𝐫𝐨𝐟𝐢𝐥𝐞 𝐩𝐢𝐜𝐭𝐮𝐫𝐞 🌸
-𝐍𝐞 𝐭𝐨𝐫 𝐩𝐢𝐜: 🙂 ${name}
-𝐈𝐝: ${uid}
-✿•≫───────────────≪•✿`,
+            body: `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» 📸 𝗣𝗥𝗢𝗙𝗜𝗟𝗘 𝗣𝗜𝗖𝗧𝗨𝗥𝗘\n» 👤 ${name}\n» 🆔 ${uid}\n» 🌸 আপনার পিকচার!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
             attachment: fs.createReadStream(cachePath)
           },
           event.threadID,
@@ -70,7 +66,11 @@ module.exports = {
 
     } catch (err) {
       console.error(err);
-      api.sendMessage("⚠️ কিছু একটা সমস্যা হয়েছে, আবার চেষ্টা করো ভাই 😭", event.threadID, event.messageID);
+      api.sendMessage(
+        "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗘𝗥𝗥𝗢𝗥\n» ❌ কিছু একটা সমস্যা হয়েছে!\n» 🔄 অনুগ্রহ করে আবার চেষ্টা করুন।\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧", 
+        event.threadID, 
+        event.messageID
+      );
     }
   }
 };
