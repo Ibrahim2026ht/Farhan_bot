@@ -1,46 +1,58 @@
 const axios = require("axios");
-const fs = require("fs");
+const fs = require("fs-extra");
 const path = require("path");
 
 module.exports = {
   config: {
     name: "pet",
-    version: "1.0",
-    author: "FARHAN-KHAN",
+    version: "1.1",
+    author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     countDown: 5,
     role: 0,
     shortDescription: "Pet a user",
-    longDescription: "Generates a pet image/video for a tagged user",
+    longDescription: "Generates a pet GIF for a tagged user with real profile picture",
     category: "fun",
     guide: "{p}pet @user"
   },
 
   onStart: async function ({ message, event, usersData }) {
-    const mentions = Object.keys(event.mentions);
-    if (mentions.length === 0) return message.reply("❌ Please tag a user.");
+    const mentions = Object.keys(event.mentions || {});
+    let userid = mentions.length > 0 ? mentions[0] : event.messageReply ? event.messageReply.senderID : null;
 
-    const userid = mentions[0];
-    const apiUrl = `https://betadash-api-swordslush-production.up.railway.app/pet?userid=${userid}`;
+    if (!userid) {
+      return message.reply(
+        "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗨𝗦𝗔𝗚𝗘\n» 📌 অনুগ্রহ করে যাকে পেট করতে চান\n» 👤 তাকে মেনশন করুন অথবা মেসেজে রিপ্লাই দিন!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧"
+      );
+    }
 
     try {
-      const res = await axios.get(apiUrl, { responseType: "arraybuffer" });
-      const contentType = res.headers["content-type"];
-      const ext = contentType.includes("gif") ? "gif" : contentType.includes("mp4") ? "mp4" : "jpg";
-      const filePath = path.join(__dirname, "cache", `pet_${userid}.${ext}`);
+      // 1️⃣ Get Real Facebook Avatar URL
+      const avatarUrl = `https://graph.facebook.com/${userid}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
 
-      fs.writeFileSync(filePath, res.data);
+      // 2️⃣ Generate Petpet GIF with Real Profile Picture
+      const petApiUrl = `https://api.popcat.xyz/pet?image=${encodeURIComponent(avatarUrl)}`;
+
+      const res = await axios.get(petApiUrl, { responseType: "arraybuffer" });
+
+      const cacheDir = path.join(__dirname, "cache");
+      await fs.ensureDir(cacheDir);
+
+      const filePath = path.join(cacheDir, `pet_${userid}_${Date.now()}.gif`);
+      await fs.writeFile(filePath, Buffer.from(res.data));
 
       const name = await usersData.getName(userid);
 
       await message.reply({
-        body: `🐾 You petted ${name}!`,
+        body: `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» 🐾 𝗣𝗘𝗧 𝗣𝗘𝗧\n» 🐱 ${name}-কে কিউট একটা আদর দেওয়া হলো!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
         attachment: fs.createReadStream(filePath)
       });
 
-      fs.unlinkSync(filePath);
+      await fs.remove(filePath);
     } catch (err) {
       console.error("❌ Pet command error:", err);
-      message.reply("⚠️ Failed to generate pet image/video.");
+      return message.reply(
+        "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗘𝗥𝗥𝗢𝗥\n» ❌ পেট পিকচার তৈরি করতে সমস্যা হয়েছে!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧"
+      );
     }
   }
 };
