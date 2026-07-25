@@ -16,7 +16,7 @@ module.exports = {
   config: {
     name: "prefix",
     version: "2.6",
-    author: "FARHAN-KHAN",
+    author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     countDown: 5,
     role: 0,
     description: "Change & show bot prefix",
@@ -120,6 +120,9 @@ module.exports = {
     const date = moment().tz("Asia/Dhaka").format("DD MMM YYYY");
 
     const owner = "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍";
+    
+    // ✅ Automatically load total loaded commands count
+    const totalCommands = global.GoatBot.commands ? global.GoatBot.commands.size : 0;
 
     const design1 = `╭👑 𝐏𝐑𝐄𝐅𝐈𝐗 𝐏𝐀𝐍𝐄𝐋 👑 ╮
 🏷️ 𝐆𝐑𝐎𝐔𝐏 ➜ ${groupName}
@@ -128,9 +131,9 @@ module.exports = {
 ⏰ 𝐓𝐈𝐌𝐄 ➜ ${time}
 📅 𝐃𝐀𝐓𝐄 ➜ ${date}
 👑 𝐎𝐖𝐍𝐄𝐑 ➜ ${owner}
-📊 𝐂𝐎𝐌𝐌𝐀𝐍𝐃𝐒 ➜ 6086+
-🚀 𝐕𝐄𝐑𝐒𝐈𝐎𝐍 ➜ V2 • V3 • V5
-⚡ 𝐒𝐓𝐀𝐓𝐔𝐒 ➜ ONLINE
+📊 𝐂𝐎𝐌𝐌𝐀𝐍𝐃𝐒 ➜ ${totalCommands}
+🚀 𝐕𝐄𝐑𝐒𝐈𝐎𝐍 ➜ 𝐕𝟐 • 𝐕𝟑 • 𝐕𝟓
+⚡ 𝐒𝐓𝐀𝐓𝐔𝐒 ➜ 𝐎𝐍𝐋𝐈𝐍𝐄
 〔 💎𝐍𝐈𝐉𝐇𝐔𝐌 𝐁𝐎𝐓💎 〕`;
 
     const design2 = `◢◤◢◤◢◤◢◤◢◤◢◤◢◤
@@ -141,9 +144,9 @@ module.exports = {
 ➥ ⏰ 𝐓𝐈𝐌𝐄 :: ${time}
 ➥ 📆 𝐃𝐀𝐓𝐄 :: ${date}
 ➥ 👑 𝐎𝐖𝐍𝐄𝐑 :: ${owner}
-➥ 📊 𝐂𝐎𝐌𝐌𝐀𝐍𝐃𝐒 :: 6086+
-➥ 🚀 𝐕𝐄𝐑𝐒𝐈𝐎𝐍 :: V2 • V3 • V5
-➥ ⚡ 𝐒𝐓𝐀𝐓𝐔𝐒 :: ONLINE
+➥ 📊 𝐂𝐎𝐌𝐌𝐀𝐍𝐃𝐒 :: ${totalCommands}
+➥ 🚀 𝐕𝐄𝐑𝐒𝐈𝐎𝐍 :: 𝐕𝟐 • 𝐕𝟑 • 𝐕𝟓
+➥ ⚡ 𝐒𝐓𝐀𝐓𝐔𝐒 :: 𝐎𝐍𝐋𝐈𝐍𝐄
 💎𝐒𝐈𝐘𝐀𝐌 𝐄𝐌𝐏𝐈𝐑𝐄💎`;
 
     return message.reply({
