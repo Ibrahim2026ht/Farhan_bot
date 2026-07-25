@@ -10,22 +10,22 @@ module.exports.config = {
   name: "mygirl",
   version: "1.7",
   role: 0,
-  author: "FARHAN-KHAN",
+  author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
   category: "fun",
   cooldowns: 5
 };
 
 module.exports.onStart = async ({ event, api, args }) => {
-  const obfuscatedAuthor = String.fromCharCode(77, 97, 104, 77, 85, 68); 
-    if (module.exports.config.author !== obfuscatedAuthor) {
-      return api.sendMessage("You are not authorized to change the author name.", event.threadID, event.messageID);
-    }
   try {
     const { threadID, messageID, senderID } = event;
     const mention = Object.keys(event.mentions)[0] || (event.messageReply && event.messageReply.senderID);
 
     if (!mention)
-      return api.sendMessage("Please tag or reply to 1 person", threadID, messageID);
+      return api.sendMessage(`» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+───────────────
+» ⚠️ অনুগ্রহ করে কাউকে ট্যাগ বা রিপ্লাই দিন।
+───────────────
+» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`, threadID, messageID);
 
     const user1 = senderID;
     const user2 = mention;
@@ -39,12 +39,20 @@ module.exports.onStart = async ({ event, api, args }) => {
     fs.writeFileSync(imgPath, Buffer.from(response.data, "binary"));
 
     api.sendMessage({
-      body: `𝐓𝐇𝐀𝐓'𝐒 𝐌𝐀𝐇 𝐆𝐈𝐑𝐋 🖤`,
+      body: `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+───────────────
+» 🖤 𝗧𝗛𝗔𝗧'𝗦 𝗠𝗔𝗛 𝗚𝗜𝗥𝗟!
+───────────────
+» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
       attachment: fs.createReadStream(imgPath)
     }, threadID, () => fs.unlinkSync(imgPath), messageID);
 
   } catch (error) {
     console.error(error);
-    api.sendMessage("🥹error, contact MahMUD.", event.threadID, event.messageID);
+    api.sendMessage(`» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+───────────────
+» ❌ কিছু একটা সমস্যা হয়েছে।
+───────────────
+» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`, event.threadID, event.messageID);
   }
 };
