@@ -1,12 +1,26 @@
-const axios = require("axios"); // Included but not used in the logic, kept for compatibility
-const fs = require("fs"); // Included but not used in the logic, kept for compatibility
+const axios = require("axios");
+const fs = require("fs");
+
+const getStreamFromURL = global.utils.getStreamFromURL;
+
+// ✅ Image list for random selection
+const imageList = [
+  "https://i.imgur.com/3fBvpps.jpeg",
+  "https://i.imgur.com/586Aq55.jpeg"
+];
+
+// Function to pick a random image stream
+const getRandomImage = async () => {
+  const randomUrl = imageList[Math.floor(Math.random() * imageList.length)];
+  return await getStreamFromURL(randomUrl);
+};
 
 module.exports = {
   config: {
     name: "pending",
     aliases: ["pen", "pend", "pe"],
-    version: "2.0.2", // Updated version
-    author: "FARHAN-KHAN",
+    version: "2.0.4",
+    author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     countDown: 5,
     role: 1,
     shortDescription: "Handle pending requests",
@@ -17,56 +31,56 @@ module.exports = {
     }
   },
 
-  // reply system compatible with ST bot
   onReply: async function ({ api, event, Reply }) {
     const { author, pending, messageID } = Reply;
-    // Check if the reply is from the command sender (admin)
     if (String(event.senderID) !== String(author)) return;
 
     const { body, threadID } = event;
 
-    // Cancel
+    // Cancel operation
     if (body.trim().toLowerCase() === "c") {
       try {
         await api.unsendMessage(messageID);
-        return api.sendMessage("❌ Operation has been canceled!", threadID);
+        return api.sendMessage(
+          "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗖𝗔𝗡𝗖𝗘𝗟𝗟𝗘𝗗\n» ❌ অপারেশনটি বাতিল করা হয়েছে!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+          threadID
+        );
       } catch {
         return;
       }
     }
 
-    // Parse indexes (handles multiple space-separated numbers like "1 3 5")
     const indexes = body.split(/\s+/)
       .map(s => Number(s.trim()))
       .filter(n => !isNaN(n) && n > 0 && n <= pending.length);
 
     if (indexes.length === 0) {
-      return api.sendMessage("⚠️ Invalid input! Please reply with the correct number(s).", threadID);
+      return api.sendMessage(
+        "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗜𝗡𝗩𝗔𝗟𝗜𝗗\n» ❌ সঠিক সংখ্যা নির্বাচন করুন!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+        threadID
+      );
     }
 
     let count = 0;
-    // Approve groups in ascending order
     for (const idx of indexes.sort((a, b) => a - b)) {
       const group = pending[idx - 1];
 
       try {
-        // 1. Send approval message to the group/user
-        await api.sendMessage(
-          `「 𝐆𝐫𝐨𝐮𝐩 𝐀𝐩𝐩𝐫𝐨𝐯𝐞𝐝 」
-      [🤖] 𝐆𝐥𝐨𝐛𝐚𝐥 𝐏𝐫𝐞𝐟𝐢𝐱: {${global.GoatBot.config.prefix}}
-______________[🤖]______________
+        // Fetch random image for the approved thread welcome message
+        const welcomeMedia = await getRandomImage();
 
-⎯͢⎯⃝🩷🐰 *গা্ঁই্ঁস্ঁ* *মু্ঁই্ঁ* *পি্ঁচ্ছি্ঁ* *সি্ঁয়া্ঁম্ঁ* *এ্ঁরৃঁ* *বৃঁটৃঁ* *আ্ঁই্ঁয়া্ঁ* *পৃঁরৃঁছি্ঁ* *মো্ঁরে্ঁ* *কি্ঁ* *দে্ঁহা্ঁ* *যা্ঁয়্ঁ* ⎯͢⎯⃝🩷🐰
-______________[🤖]______________`,
+        await api.sendMessage(
+          {
+            body: `「 𝐆𝐫𝐨𝐮𝐩 𝐀𝐩𝐩𝐫𝐨𝐯𝐞𝐝 」\n[🤖] 𝐆𝐥𝐨𝐛𝐚𝐥 𝐏𝐫𝐞𝐟𝐢𝐱: {${global.GoatBot.config.prefix}}\n______________[🤖]______________\n\n⎯͢⎯⃝🩷🐰 *গা্ঁই্ঁস্ঁ* *মু্ঁই্ঁ* *পি্ঁচ্ছি্ঁ* *সি্ঁয়া্ঁম্ঁ* *এ্ঁরৃঁ* *বৃঁটৃঁ* *আ্ঁই্ঁয়া্ঁ* *পৃঁরৃঁছি্ঁ* *মো্ঁরে্ঁ* *কি্ঁ* *দে্ঁহা্ঁ* *যা্ঁয়্ঁ* ⎯͢⎯⃝🩷🐰\n______________[🤖]______________`,
+            attachment: welcomeMedia
+          },
           group.threadID
         );
 
-        // 2. Change bot's nickname (Fixed syntax error)
-        // Accessing global variables should be done safely
         const botNickname = global.GoatBot?.config?.nickNameBot || "[ , ] 𝘽𝙤𝙩 - 𝐀𝐩𝐡𝐞𝐥𝐢𝐨𝐧🌊🪶";
         
         await api.changeNickname(
-          botNickname, // Fixed: removed template literal wrapper
+          botNickname,
           group.threadID,
           api.getCurrentUserID()
         );
@@ -77,38 +91,37 @@ ______________[🤖]______________`,
       }
     }
 
-    // 3. Cleanup: remove approved threads from the pending list (Fixed syntax error in cleanup loop)
-    // Remove indices in descending order to avoid index shifting problems
     for (const idx of indexes.sort((a, b) => b - a)) {
       pending.splice(idx - 1, 1);
     }
 
-    // 4. Send success message (Fixed syntax error in template literal)
-    await api.unsendMessage(messageID); // Remove the original pending list message
+    await api.unsendMessage(messageID);
     return api.sendMessage(
-      `✅ | [ Successfully ] 🎉 Approved ${count} Groups/Users ✨!`, 
+      `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ✅ 𝗦𝗨𝗖𝗖𝗘𝗦𝗦\n» 🎉 সফলভাবে ${count} টি গ্রুপ/ইউজার এপ্রুভ করা হয়েছে!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`, 
       threadID
     );
   },
 
-  // onStart instead of onRun (for ST bot)
   onStart: async function ({ api, event, args, usersData }) {
     const { threadID, messageID, senderID } = event;
-    const adminBot = global.GoatBot?.config?.adminBot; // Fixed: Safe access to global config
+    const adminBot = global.GoatBot?.config?.adminBot;
 
-    // permission check
-    // Assuming adminBot is an array of senderIDs
     if (!Array.isArray(adminBot) || !adminBot.includes(senderID)) {
-      return api.sendMessage("❌ You have no permission to use this command!", threadID);
+      return api.sendMessage(
+        "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗣𝗘𝗥𝗠𝗜𝗦𝗦𝗜𝗢𝗡 𝗗𝗘𝗡𝗜𝗘𝗗\n» ⛔ আপনার এই কমান্ড ব্যবহার করার অনুমতি নেই!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+        threadID
+      );
     }
 
     const type = args[0]?.toLowerCase();
     if (!type || !["user", "thread", "all"].includes(type)) {
-      return api.sendMessage("Usage: `pending [user/thread/all]`", threadID);
+      return api.sendMessage(
+        "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗨𝗦𝗔𝗚𝗘\n» 📌 ব্যবহারবিধি: pending [user/thread/all]\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+        threadID
+      );
     }
 
     try {
-      // Fetch lists (using 100 as the limit as in original code)
       const spam = (await api.getThreadList(100, null, ["OTHER"])) || [];
       const pending = (await api.getThreadList(100, null, ["PENDING"])) || [];
       const list = [...spam, ...pending];
@@ -118,39 +131,41 @@ ______________[🤖]______________`,
       else if (type.startsWith("t")) filteredList = list.filter((t) => t.isGroup);
       else if (type === "all") filteredList = list;
 
-      if (filteredList.length === 0)
-        return api.sendMessage("✅ No pending requests found!", threadID);
+      if (filteredList.length === 0) {
+        return api.sendMessage(
+          "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» 📑 𝗣𝗘𝗡𝗗𝗜𝗡𝗚 𝗟𝗜𝗦𝗧\n» ✅ কোনো পেন্ডিং রিকোয়েস্ট পাওয়া যায়নি!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+          threadID
+        );
+      }
 
       let msg = "";
       let index = 1;
 
-      // Build the display list
       for (const single of filteredList) {
-        // Fetch user name for 1:1 chats, or use thread name for groups
         const name = single.isGroup ? single.name : (await usersData.getName(single.threadID)) || "Unknown";
-        
-        // Fixed: Syntax error in string concatenation
-        msg += `[ ${index} ] ${name} (${single.threadID})\n`; 
+        msg += `» [ ${index} ] ${name} (${single.threadID})\n`; 
         index++;
       }
 
-      // Fixed: Syntax error in template literal
       const finalMessage = 
-        `✨ | [ Pending ${type.charAt(0).toUpperCase() + type.slice(1)} List ] ✨\n\n${msg}` +
-        `\n🦋 Reply with the correct number(s) to approve!\n✨ Reply with "c" to Cancel.`;
+        `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» 📑 𝗣𝗘𝗡𝗗𝗜𝗡𝗚 ${type.toUpperCase()} 𝗟𝗜𝗦𝗧\n\n${msg}\n───────────────\n» 📌 এপ্রুভ করতে নম্বর লিখে রিপ্লাই দিন!\n» ❌ বাতিল করতে "c" লিখে রিপ্লাই দিন।\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`;
+
+      const randomMedia = await getRandomImage();
 
       return api.sendMessage(
-        finalMessage,
+        {
+          body: finalMessage,
+          attachment: randomMedia
+        },
         threadID,
         (error, info) => {
           if (error) return console.error(error);
           
-          // Set reply map
           global.GoatBot.onReply.set(info.messageID, {
             commandName: module.exports.config.name,
             messageID: info.messageID,
             author: senderID,
-            pending: filteredList // Pass the list for processing in onReply
+            pending: filteredList
           });
         },
         messageID
@@ -158,7 +173,7 @@ ______________[🤖]______________`,
     } catch (error) {
       console.error("Pending fetch error:", error);
       return api.sendMessage(
-        "⚠️ Failed to retrieve pending list. Please try again later.",
+        "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗘𝗥𝗥𝗢𝗥\n» ❌ পেন্ডিং লিস্ট আনতে সমস্যা হয়েছে!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
         threadID
       );
     }
