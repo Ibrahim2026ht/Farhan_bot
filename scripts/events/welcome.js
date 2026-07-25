@@ -17,9 +17,9 @@ const backgroundImages = [
     "https://i.imgur.com/uJcd1bf.jpeg"
 ];
 
-const welcomeImageLinks = [
-    "https://tmpfiles.org/dl/wMwPzWZBvKMM/catbox_1784977883154.jpg",
-    "https://tmpfiles.org/dl/wQwKzEZvvP52/catbox_1784977897619.jpg"
+const botJoinImages = [
+    "https://i.imgur.com/y5a5BBP.jpeg",
+    "https://i.imgur.com/586Aq55.jpeg"
 ];
 
 const backgroundCache = new Map();
@@ -37,6 +37,7 @@ async function loadBackgroundImage(url) {
         backgroundCache.set(url, img);
         return img;
     } catch (error) {
+        console.error("[WELCOME] Failed to load background:", url, error.message);
         return null;
     }
 }
@@ -148,66 +149,60 @@ async function createWelcomeCard(gcImg, userImg, adderImg, userName, userNumber,
 module.exports = {
     config: {
         name: "welcome",
-        version: "2.2",
-        author: "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
+        version: "2.1",
+        author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
         category: "events"
     },
     onStart: async ({ threadsData, event, message, usersData, api }) => {
         if (event.logMessageType !== "log:subscribe") return;
         try {
             const threadID = event.threadID;
-            const addedParticipants = event.logMessageData.addedParticipants;
-            if (!addedParticipants || addedParticipants.length === 0) return;
-            const addedUser = addedParticipants[0];
+            const addedUser = event.logMessageData.addedParticipants[0];
             const addedUserId = addedUser.userFbId;
             const userName = addedUser.fullName;
             const botID = api.getCurrentUserID();
             const threadInfo = await threadsData.get(threadID) || {};
             const threadName = threadInfo.threadName || "Group";
-            
-            let memberCount = 1;
-            try {
-                const fullThreadInfo = await api.getThreadInfo(threadID);
-                if (fullThreadInfo && fullThreadInfo.participantIDs) {
-                    memberCount = fullThreadInfo.participantIDs.length;
-                } else if (threadInfo.members) {
-                    memberCount = Array.isArray(threadInfo.members) ? threadInfo.members.length : Object.keys(threadInfo.members).length;
-                }
-            } catch (err) {
-                memberCount = (threadInfo.members && Array.isArray(threadInfo.members)) ? threadInfo.members.length : (threadInfo.members ? Object.keys(threadInfo.members).length : 1);
-            }
-
-            const tempDir = path.join(__dirname, 'tmp_wel');
-            await fs.ensureDir(tempDir);
+            const memberCount = (threadInfo.members && Array.isArray(threadInfo.members)) ? threadInfo.members.length : (threadInfo.members ? Object.keys(threadInfo.members).length : 1);
 
             if (addedUserId === botID) {
                 try {
                     await api.changeNickname("𓆩»̶̶͓͓͓̽̽̽𝆠꯭፝֟ɴɪᴊʜᴜᴍ-ᴄʜᴀᴛ-ʙᴏᴛ𝆠꯭፝֟⚜️𓆪", threadID, botID);
-                } catch (nicknameError) {}
-                
+                } catch (nicknameError) {
+                    console.error("[Welcome] Failed to change bot nickname:", nicknameError);
+                }
+
+                let imageStream;
                 let botJoinImgPath;
                 try {
-                    const imgResponse = await axios.get("https://i.imgur.com/s8Hs77i.jpeg", {
-                        responseType: "arraybuffer"
+                    const randomBotImgUrl = botJoinImages[Math.floor(Math.random() * botJoinImages.length)];
+                    const imgResponse = await axios.get(randomBotImgUrl, {
+                        responseType: "arraybuffer",
+                        headers: {
+                            "User-Agent": "Mozilla/5.0"
+                        }
                     });
+                    const tempDir = path.join(__dirname, '..', '..', 'temp');
+                    await fs.ensureDir(tempDir);
                     botJoinImgPath = path.join(tempDir, `bot_join_${Date.now()}.jpeg`);
                     fs.writeFileSync(botJoinImgPath, Buffer.from(imgResponse.data));
-                } catch (imgError) {}
+                    imageStream = fs.createReadStream(botJoinImgPath);
+                } catch (imgError) {
+                    console.error("[Welcome] Bot image download failed:", imgError.message);
+                }
 
                 const msgPayload = {
                     body: `✨ 𝗕𝗢𝗧 𝗖𝗢𝗡𝗡𝗘𝗖𝗧𝗘𝗗 ✨\n──────────────────\n👋 হ্যালো BOT EXPOSED 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 \n\n🤖 আমি 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧\n❤️ আমাকে গ্রুপে Add করার জন্য ধন্যবাদ\n\n──────────────────\n📌 𝗚𝗥𝗢𝗨𝗣 𝗜𝗡𝗙𝗢\n» 👥 𝗠𝗘𝗠𝗕𝗘𝗥𝗦 : ${memberCount}\n» 🤖 𝗣𝗥𝗘𝗙𝗜𝗫 : { , }\n\n──────────────────\n📖 𝗚𝗘𝗧 𝗦𝗧𝗔𝗥𝗧𝗘𝗗\n» /help — সকল কমান্ড দেখুন\n» call আপনার সমস্যা লেখুন\n» 📞 +𝟴𝟴𝟬𝟭𝟴𝟵𝟭𝟯𝟴𝟭𝟱𝟳\n─────────────────\n👑 𝗢𝗪𝗡𝗘𝗥 : 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍\n\n🌸 সবাইকে স্বাগতম`
                 };
 
-                if (botJoinImgPath && fs.existsSync(botJoinImgPath)) {
-                    msgPayload.attachment = fs.createReadStream(botJoinImgPath);
+                if (imageStream) {
+                    msgPayload.attachment = imageStream;
                 }
 
                 await message.reply(msgPayload);
 
                 if (botJoinImgPath && fs.existsSync(botJoinImgPath)) {
-                    setTimeout(() => {
-                        try { fs.unlinkSync(botJoinImgPath); } catch (e) {}
-                    }, 5000);
+                    setTimeout(() => fs.unlinkSync(botJoinImgPath), 5000);
                 }
                 return;
             }
@@ -230,69 +225,39 @@ module.exports = {
                 usersData.getName(adderId)
             ]);
             const groupImage = threadInfo.imageSrc || 'https://i.imgur.com/7Qk8k6c.png';
+            const tempDir = path.join(__dirname, '..', '..', 'temp');
+            await fs.ensureDir(tempDir);
 
-            const randomChoice = Math.floor(Math.random() * 3);
-
-            if (randomChoice === 0) {
-                const imageBuffer = await createWelcomeCard(
-                    groupImage,
-                    userAvatar,
-                    adderAvatar,
-                    userName,
-                    memberCount,
-                    threadName,
-                    adderName
-                );
-                const tempPath = path.join(tempDir, `welcome_${Date.now()}.png`);
-                fs.writeFileSync(tempPath, imageBuffer);
-                await message.reply({
-                    body: `🌸 𝐖𝐄𝐋𝐂𝐎𝐌𝐄 🌸\n━━━━━━━━━━━━━━━━━━━\n🌷 𝐍𝐚𝐦𝐞: ${userName}\n🏷️ 𝐆𝐫𝐨𝐮𝐩: ${threadName}\n🔢 𝐌𝐞𝐦𝐛𝐞𝐫 #${memberCount}\n👤 𝐀𝐝𝐝𝐞𝐝 𝐛𝐲: ${adderName}\n━━━━━━━━━━━━━━━━━━━\n𝐄𝐧𝐣𝐨𝐲 𝐲𝐨𝐮𝐫 𝐬𝐭𝐚𝐲! 😊`,
-                    attachment: fs.createReadStream(tempPath)
-                });
-                setTimeout(() => {
-                    if (fs.existsSync(tempPath)) {
-                        try { fs.unlinkSync(tempPath); } catch (e) {}
-                    }
-                }, 10000);
-            } else {
-                const selectedLink = welcomeImageLinks[randomChoice - 1];
-                let linkImgPath;
-                try {
-                    const linkResponse = await axios.get(selectedLink, {
-                        responseType: "arraybuffer",
-                        headers: {
-                            "User-Agent": "Mozilla/5.0"
-                        }
-                    });
-                    linkImgPath = path.join(tempDir, `welcome_link_${Date.now()}.jpg`);
-                    fs.writeFileSync(linkImgPath, Buffer.from(linkResponse.data));
-                } catch (linkErr) {}
-
-                const payload = {
-                    body: `🌸 𝐖𝐄𝐋𝐂𝐎𝐌𝐄 🌸\n━━━━━━━━━━━━━━━━━━━\n🌷 𝐍𝐚𝐦𝐞: ${userName}\n🏷️ 𝐆𝐫𝐨𝐮𝐩: ${threadName}\n🔢 𝐌𝐞𝐦𝐛𝐞𝐫 #${memberCount}\n👤 𝐀𝐝𝐝𝐞𝐝 𝐛𝐲: ${adderName}\n━━━━━━━━━━━━━━━━━━━\n𝐄𝐧𝐣𝐨𝐲 𝐲𝐨𝐮𝐫 𝐬𝐭𝐚𝐲! 😊`
-                };
-
-                if (linkImgPath && fs.existsSync(linkImgPath)) {
-                    payload.attachment = fs.createReadStream(linkImgPath);
+            const imageBuffer = await createWelcomeCard(
+                groupImage,
+                userAvatar,
+                adderAvatar,
+                userName,
+                memberCount,
+                threadName,
+                adderName
+            );
+            const tempPath = path.join(
+                tempDir,
+                `welcome_${Date.now()}.png`
+            );
+            fs.writeFileSync(tempPath, imageBuffer);
+            await message.reply({
+                body: `🌸 𝐖𝐄𝐋𝐂𝐎𝐌𝐄 🌸\n━━━━━━━━━━━━━━━━━━━\n🌷 𝐍𝐚𝐦𝐞: ${userName}\n🏷️ 𝐆𝐫𝐨𝐮𝐩: ${threadName}\n🔢 𝐌𝐞𝐦𝐛𝐞𝐫 #${memberCount}\n👤 𝐀𝐝𝐝𝐞𝐝 𝐛𝐲: ${adderName}\n━━━━━━━━━━━━━━━━━━━\n𝐄𝐧𝐣𝐨𝐲 𝐲𝐨𝐮𝐫 𝐬𝐭𝐚𝐲! 😊`,
+                attachment: fs.createReadStream(tempPath)
+            });
+            setTimeout(() => {
+                if (fs.existsSync(tempPath)) {
+                    fs.unlinkSync(tempPath);
                 }
+            }, 10000);
 
-                await message.reply(payload);
-
-                if (linkImgPath && fs.existsSync(linkImgPath)) {
-                    setTimeout(() => {
-                        if (fs.existsSync(linkImgPath)) {
-                            try { fs.unlinkSync(linkImgPath); } catch (e) {}
-                        }
-                    }, 10000);
-                }
-            }
         } catch (error) {
-            try {
-                const addedUser = event.logMessageData.addedParticipants[0];
-                await message.send({
-                    body: `🌸 𝐖𝐞𝐥𝐜𝐨𝐦𝐞 ${addedUser.fullName}! 🌸\n━━━━━━━━━━━━\n🌷 𝐓𝐨 𝐨𝐮𝐫 𝐠𝐫𝐨𝐮𝐩 𝐟𝐚𝐦𝐢𝐥𝐲!\n🌟 𝐖𝐞'𝐫𝐞 𝐞𝐱𝐜𝐢𝐭𝐞𝐝 𝐭𝐨 𝐡𝐚𝐯𝐞 𝐲𝐨𝐮!\n🎊 𝐏𝐥𝐞𝐚𝐬𝐞 𝐢𝐧𝐭𝐫𝐨𝐝𝐮𝐜𝐞 𝐲𝐨𝐮𝐫𝐬𝐞𝐥𝐟!\n━━━━━━━━━━━━\n𝐇𝐚𝐯𝐞 𝐟𝐮𝐧! 😊`
-                });
-            } catch (e) {}
+            console.error("[Welcome error]:", error);
+            const addedUser = event.logMessageData.addedParticipants[0];
+            await message.send({
+                body: `🌸 𝐖𝐞𝐥𝐜𝐨𝐦𝐞 ${addedUser.fullName}! 🌸\n━━━━━━━━━━━━\n🌷 𝐓𝐨 𝐨𝐮𝐫 𝐠𝐫𝐨𝐮𝐩 𝐟𝐚𝐦𝐢𝐥𝐲!\n🌟 𝐖𝐞'𝐫𝐞 𝐞𝐱𝐜𝐢𝐭𝐞𝐝 𝐭𝐨 𝐡𝐚𝐯𝐞 𝐲𝐨𝐮!\n🎊 𝐏𝐥𝐞𝐚𝐬𝐞 𝐢𝐧𝐭𝐫𝐨𝐝𝐮𝐜𝐞 𝐲𝐨𝐮𝐫𝐬𝐞𝐥𝐟!\n━━━━━━━━━━━━\n𝐇𝐚𝐯𝐞 𝐟𝐮𝐧! 😊`
+            });
         }
     }
 };
