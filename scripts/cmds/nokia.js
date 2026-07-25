@@ -6,7 +6,7 @@ module.exports = {
   config: {
     name: "nokia",
     version: "1.0",
-    author: "FARHAN-KHAN",
+    author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     countDown: 10,
     role: 0,
     shortDescription: {
@@ -44,12 +44,20 @@ module.exports = {
       fs.writeFileSync(imagePath, res.data);
 
       message.reply({
-        body: `📱 | Here's your Nokia screen effect!`,
+        body: `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+───────────────
+» 📱 𝗛𝗲𝗿𝗲'𝘀 𝘆𝗼𝘂𝗿 𝗡𝗼𝗸𝗶𝗮 𝘀𝗰𝗿𝗲𝗲𝗻 𝗲𝗳𝗳𝗲𝗰𝘁!
+───────────────
+» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
         attachment: fs.createReadStream(imagePath)
       }, () => fs.unlinkSync(imagePath));
     } catch (err) {
       console.error(err);
-      message.reply("❌ | Failed to generate Nokia image.");
+      message.reply(`» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+───────────────
+» ❌ 𝗙𝗮𝗶𝗹𝗲𝗱 𝘁𝗼 𝗴𝗲𝗻𝗲𝗿𝗮𝘁𝗲 𝗡𝗼𝗸𝗶𝗮 𝗶𝗺𝗮𝗴𝗲.
+───────────────
+» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`);
     }
   }
 };
