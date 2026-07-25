@@ -8,10 +8,10 @@ module.exports = {
   config: {
     name: "namaj",
     version: "14.0.0",
-    author: "FARHAN-KHAN",
+    author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     countDown: 5,
     role: 0,
-    shortDescription: "নামাজের সময়সূচী, জেলা এবং বর্তমান তারিখ",
+    shortDescription: "নামাজের সময়সূচী, জেলা এবং বর্তমান তারিখ",
     category: "islam",
     guide: "{p}namaj list অথবা {p}namaj [District Name]"
   },
@@ -21,20 +21,37 @@ module.exports = {
     let input = args.join(" ").trim();
 
     if (!input) {
-      return api.sendMessage("❌ Please provide a district name. Example: /namaj Dhaka\nTo see list, type: /namaj list", event.threadID);
+      return api.sendMessage(`» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+───────────────
+» ❌ অনুগ্রহ করে একটি জেলার নাম দিন।
+» 💡 যেমন: /namaj Dhaka
+» 📜 তালিকা দেখতে লিখুন: /namaj list
+───────────────
+» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`, event.threadID);
     }
 
     if (input.toLowerCase() === "list") {
-      let msg = "📜 **Available Districts List:**\n━━━━━━━━━━━━━━━━━━━━\n";
-      districts.forEach((d, i) => { msg += `${i + 1}. ${d}\n`; });
-      msg += "\n━━━━━━━━━━━━━━━━━━━━\n💡 Type: /namaj [District Name] to see timings.";
+      let msg = `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+───────────────
+» 📜 সকল জেলার তালিকা:
+`;
+      districts.forEach((d, i) => { msg += `» ${i + 1}. ${d}\n`; });
+      msg += `───────────────
+» 💡 ব্যবহার নিয়ম: /namaj [District Name]
+───────────────
+» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`;
       return api.sendMessage(msg, event.threadID);
     }
 
     const city = districts.find(d => d.toLowerCase() === input.toLowerCase());
 
     if (!city) {
-      return api.sendMessage("❌ Please provide a district name. Example: /namaj Dhaka\nTo see list, type: /namaj list", event.threadID);
+      return api.sendMessage(`» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+───────────────
+» ❌ ভুল জেলার নাম দিয়েছেন!
+» 📜 সঠিক জেলার তালিকা দেখতে লিখুন: /namaj list
+───────────────
+» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`, event.threadID);
     }
 
     try {
@@ -49,7 +66,6 @@ module.exports = {
 
       const t = res.data.data.timings;
       const currentTime = moment.tz("Asia/Dhaka").format("hh:mm A");
-      // আজকের তারিখ ফরম্যাট করা (যেমন: 19 February 2026)
       const currentDate = moment.tz("Asia/Dhaka").format("DD MMMM YYYY");
 
       const imageUrl = "https://i.imgur.com/0sh6Esb.jpeg"; 
@@ -59,7 +75,6 @@ module.exports = {
 
       ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-      // --- ১ নম্বর বক্স (নামাজের সময়) ---
       let box1Y = image.height / 5.5; 
       ctx.fillStyle = "rgba(0, 0, 0, 0.6)"; 
       ctx.fillRect(60, box1Y, image.width - 120, 310);
@@ -88,10 +103,9 @@ module.exports = {
         startY += 40; 
       });
 
-      // --- ২ নম্বর বক্স (জেলা, সময়, তারিখ এবং আপনার নাম) ---
       let box2Y = startY + 5;
       ctx.fillStyle = "rgba(255, 255, 255, 0.2)"; 
-      ctx.fillRect(60, box2Y, image.width - 120, 130); // বক্স বড় করা হয়েছে তারিখের জন্য
+      ctx.fillRect(60, box2Y, image.width - 120, 130); 
       ctx.strokeStyle = "#FFD700";
       ctx.strokeRect(60, box2Y, image.width - 120, 130);
 
@@ -102,24 +116,32 @@ module.exports = {
       ctx.font = "bold 17px Arial";
       ctx.fillStyle = "#ffffff";
       ctx.fillText(`⌚ Time Now : ${currentTime}`, 85, box2Y + 50);
-      ctx.fillText(`📅 Today    : ${currentDate}`, 85, box2Y + 75); // এখানে তারিখ যোগ করা হয়েছে
+      ctx.fillText(`📅 Today    : ${currentDate}`, 85, box2Y + 75); 
       
-      // --- আপনার নাম (RAFI) ---
       ctx.font = "bold 16px Arial";
       ctx.fillStyle = "#00FF00"; 
-      ctx.fillText(`👤 Owner    : RAFI`, 85, box2Y + 105);
+      ctx.fillText(`👤 Owner    : 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍`, 85, box2Y + 105);
 
       const cachePath = path.join(__dirname, "cache", `namaj_${Date.now()}.png`);
       fs.ensureDirSync(path.join(__dirname, "cache"));
       fs.writeFileSync(cachePath, canvas.toBuffer("image/png"));
 
       api.sendMessage({
-        body: `🕌 Prayer timings for ${city.toUpperCase()}\n📅 Date: ${currentDate}`,
+        body: `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+───────────────
+» 🕌 ${city.toUpperCase()} জেলার নামাজের সময়সূচী
+» 📅 তারিখ: ${currentDate}
+───────────────
+» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
         attachment: fs.createReadStream(cachePath)
       }, event.threadID, () => fs.unlinkSync(cachePath));
 
     } catch (error) {
-      api.sendMessage("❌ Error fetching data.", event.threadID);
+      api.sendMessage(`» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+───────────────
+» ❌ তথ্য আনতে সমস্যা হয়েছে।
+───────────────
+» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`, event.threadID);
     }
   }
 };
