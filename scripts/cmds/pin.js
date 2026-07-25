@@ -7,7 +7,7 @@ module.exports = {
     name: "pinterest",
     aliases: ["pin", "pint"],
     version: "1.0",
-    author: "FARHAN-KHAN",
+    author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     countDown: 2,
     role: 0,
     description: "Search Pinterest and get image results",
@@ -19,7 +19,13 @@ module.exports = {
 
   onStart: async function ({ api, event, args }) {
     const query = args.join(" ");
-    if (!query) return api.sendMessage("❗ Please provide a search keyword.\nExample: pinterest Naruto", event.threadID, event.messageID);
+    if (!query) {
+      return api.sendMessage(
+        "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗨𝗦𝗔𝗚𝗘\n» 📌 অনুগ্রহ করে একটি\n» 🔍 সার্চ কিওয়ার্ড লিখুন!\n» 💡 উদাহরণ: pinterest Naruto\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧", 
+        event.threadID, 
+        event.messageID
+      );
+    }
 
     try {
       const count = 5;
@@ -28,7 +34,11 @@ module.exports = {
 
       const imageList = res.data?.data;
       if (!Array.isArray(imageList) || imageList.length === 0) {
-        return api.sendMessage("❌ No results found!", event.threadID, event.messageID);
+        return api.sendMessage(
+          "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗡𝗢𝗧 𝗙𝗢𝗨𝗡𝗗\n» ❌ কোনো ছবি পাওয়া যায়নি!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧", 
+          event.threadID, 
+          event.messageID
+        );
       }
 
       const attachments = [];
@@ -41,17 +51,25 @@ module.exports = {
       }
 
       api.sendMessage({
-        body: `🔍 Pinterest results for: "${query}"`,
+        body: `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» 🖼️ 𝗣𝗜𝗡𝗧𝗘𝗥𝗘𝗦𝗧\n » 🍫 𝗥𝗘𝗦𝗨𝗟𝗧𝗦\n» 🔍 সার্চ: "${query}"\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
         attachment: attachments
       }, event.threadID, () => {
         for (let i = 0; i < attachments.length; i++) {
-          fs.unlinkSync(path.join(__dirname, `pin_${i}.jpg`));
+          try {
+            fs.unlinkSync(path.join(__dirname, `pin_${i}.jpg`));
+          } catch (e) {
+            console.error(e);
+          }
         }
       }, event.messageID);
 
     } catch (err) {
       console.error(err);
-      api.sendMessage("🚫 Error fetching from Pinterest API.", event.threadID, event.messageID);
+      api.sendMessage(
+        "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗘𝗥𝗥𝗢𝗥\n» 🚫 পিন্টারেস্ট এপিআই থেকে\n» ❌ ছবি আনতে সমস্যা হয়েছে!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧", 
+        event.threadID, 
+        event.messageID
+      );
     }
   }
 };
