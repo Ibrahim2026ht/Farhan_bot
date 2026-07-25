@@ -2,7 +2,7 @@ module.exports = {
 	config: {
 		name: "checkwarn",
 		version: "1.3",
-		author: "MR_FARHAN",
+		author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
 		category: "events"
 	},
 
@@ -26,11 +26,11 @@ module.exports = {
 				if (!warnList)
 					return;
 				const { addedParticipants } = event.logMessageData;
-				for (const user of addedParticipants) {
-					const findUser = warnList.find(user => user.userID == user.userID);
+				for (const participant of addedParticipants) {
+					const findUser = warnList.find(item => item.userID == participant.userFbId);
 					if (findUser && findUser.list >= 3) {
-						const userName = user.fullName;
-						const uid = user.userFbId;
+						const userName = participant.fullName;
+						const uid = participant.userFbId;
 						message.send({
 							body: getLang("warn", userName, uid, client.getPrefix(threadID)),
 							mentions: [{
