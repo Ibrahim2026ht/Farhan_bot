@@ -18,7 +18,7 @@ module.exports = {
 	config: {
 		name: "commandName", // Name of command, it must be unique to identify with other commands
 		version: "1.1", // Version of command
-		author: "NTKhang", // Author of command
+		author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍", // Author of command
 		countDown: 5, // Time to wait before executing command again (seconds)
 		role: 0, // Role of user to use this command (0: normal user, 1: admin box chat, 2: owner bot)
 		shortDescription: {
@@ -38,26 +38,16 @@ module.exports = {
 
 	langs: {
 		vi: {
-			hello: "xin chào",
-			helloWithName: "xin chào, id facebook của bạn là %1"
-		}, // Vietnamese language
+			hello: "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» 👋 𝗫𝗶𝗻 𝗰𝗵à𝗼\n» 🆔 𝗜𝗗: %1\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+			helloWithName: "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» 👋 𝗫𝗶𝗻 𝗰𝗵à𝗼, 𝗶𝗱 𝗳𝗮𝗰𝗲𝗯𝗼𝗼𝗸 𝗹à %1\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧"
+		},
 		en: {
-			hello: "hello world",
-			helloWithName: "hello, your facebook id is %1"
-		} // English language
+			hello: "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» 👋 𝗛𝗲𝗹𝗹𝗼 𝘄𝗼𝗿𝗹𝗱\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+			helloWithName: "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» 👋 𝗛𝗲𝗹𝗹𝗼, 𝘆𝗼𝘂𝗿 𝗶𝗱 𝗶𝘀 %1\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧"
+		}
 	},
 
-	// onStart is a function that will be executed when the command is executed
 	onStart: async function ({ api, args, message, event, threadsData, usersData, dashBoardData, globalData, threadModel, userModel, dashBoardModel, globalModel, role, commandName, getLang }) {
-		// YOUR CODE HERE, use console.log() to see all properties in variables above
-
-
-		// getLang is a function to get language of command
-
-		// getLang without parameter is a function to get language of command without parameter
 		message.reply(getLang("hello"));
-		// getLang with parameter is a function to get language of command with parameter (delete // in line below to test)
-		// message.reply(getLang("hello", event.senderID));
-
 	}
 };
