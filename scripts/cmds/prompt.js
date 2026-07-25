@@ -8,7 +8,7 @@ module.exports = {
     aliases: ["p"],
     version: "0.0.1",
     role: 0,
-    author: "FARHAN-KHAN",
+    author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     category: "AI",
     cooldowns: 5,
     guide: { en: "Reply to an image to generate Midjourney prompt" }
@@ -23,7 +23,11 @@ module.exports = {
       baseApi = configRes.data && configRes.data.api;
       if (!baseApi) throw new Error("Configuration Error: Missing API in GitHub JSON.");
     } catch (error) {
-      return api.sendMessage("❌ Failed to fetch API configuration from GitHub.", threadID, messageID);
+      return api.sendMessage(
+        "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗘𝗥𝗥𝗢𝗥\n» ❌ এপিআই কনফিগারেশন লোড করতে ব্যর্থ হয়েছে!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+        threadID,
+        messageID
+      );
     }
 
     if (
@@ -32,7 +36,11 @@ module.exports = {
       messageReply.attachments.length === 0 ||
       !messageReply.attachments[0].url
     ) {
-      return api.sendMessage("Please reply to an image.", threadID, messageID);
+      return api.sendMessage(
+        "» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗨𝗦𝗔𝗚𝗘\n» 🖼️ যেকোনো একটি ছবির ওপর\n» 📌 রিপ্লাই দিয়ে কমান্ডটি ব্যবহার করুন!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧",
+        threadID,
+        messageID
+      );
     }
 
     try {
@@ -54,7 +62,9 @@ module.exports = {
       const promptText = result.prompt || "No prompt returned.";
 
       await api.sendMessage(
-        { body: `${promptText}` },
+        {
+          body: `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» 🎨 𝗜𝗠𝗔𝗚𝗘 𝗣𝗥𝗢𝗠𝗣𝗧\n» 📝 ${promptText}\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`
+        },
         threadID,
         messageID
       );
@@ -63,11 +73,15 @@ module.exports = {
     } catch (e) {
       api.setMessageReaction("❌", messageID, () => {}, true);
 
-      let msg = "Error while generating prompt.";
+      let msg = "প্রম্পট জেনারেট করতে সমস্যা হয়েছে।";
       if (e.response?.data?.error) msg = e.response.data.error;
       else if (e.message) msg = e.message;
 
-      api.sendMessage(msg, threadID, messageID);
+      api.sendMessage(
+        `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗘𝗥𝗥𝗢𝗥\n» ❌ ${msg}\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
+        threadID,
+        messageID
+      );
     }
   }
 };
