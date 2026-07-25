@@ -7,7 +7,7 @@ module.exports = {
     name: "nigga",
     aliases: [],
     version: "1.3",
-    author: "FARHAN-KHAN",
+    author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     countDown: 2,
     role: 0,
     description: "Send a roast image using UID (mention / reply / self)",
@@ -42,7 +42,11 @@ module.exports = {
 
       api.sendMessage(
         {
-          body: `Look I found a nigga 😂`,
+          body: `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+───────────────
+» 😂 𝗟𝗼𝗼𝗸 𝗜 𝗳𝗼𝘂𝗻𝗱 𝗮 𝗻𝗶𝗴𝗴𝗮!
+───────────────
+» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
           attachment: fs.createReadStream(filePath),
         },
         event.threadID,
@@ -53,7 +57,12 @@ module.exports = {
     } catch (e) {
       console.error("Error:", e.message);
       api.sendMessage(
-        "❌ Couldn't generate image. Try again later.",
+        `» 👑 𝐒𝐈𝐘𝗔𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+───────────────
+» ❌ 𝗖𝗼𝘂𝗹𝗱𝗻'𝘁 𝗴𝗲𝗻𝗲𝗿𝗮𝘁𝗲 𝗶𝗺𝗮𝗴𝗲.
+» ⚠️ 𝗧𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗹𝗮𝘁𝗲𝗿.
+───────────────
+» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
         event.threadID,
         event.messageID
       );
