@@ -5,7 +5,7 @@ const axios = require("axios");
 module.exports = {
   config: {
     name: "resend",
-    version: "2.1.0",
+    version: "2.2.0",
     role: 0,
     author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     countDown: 0,
@@ -23,12 +23,12 @@ module.exports = {
   },
 
   handleEvent: async function ({ event, api, usersData, threadsData }) {
-    const { threadID, messageID, senderID, body, attachments, type, logMessageType } = event;
+    const { threadID, messageID, senderID, body, attachments, type } = event;
 
     if (!global.logMessage) global.logMessage = new Map();
 
     try {
-      // ১. গ্লোবাল রিকল স্ট্যাটাস চেক (সব গ্রুপে অফ করা আছে কিনা)
+      // ১. গ্লোবাল রিসেন্ড স্ট্যাটাস চেক
       let globalStatus = true;
       try {
         const globalData = await threadsData.get("global_resend_status");
@@ -42,30 +42,30 @@ module.exports = {
       // ২. নির্দিষ্ট গ্রুপের স্ট্যাটাস চেক
       let threadData = {};
       try {
-        threadData = await threadsData.get(threadID) || {};
+        threadData = (await threadsData.get(threadID)) || {};
       } catch (e) {}
 
-      // ডিফল্টভাবে অন থাকবে, যদি না সুনির্দিষ্টভাবে false করা হয়
       const isResendOff = threadData.resend === false;
       if (isResendOff) return;
 
-      // ৩. সাধারণ মেসেজ বা মিডিয়া ক্যাশ করা
-      if (type !== "message_unsend" && logMessageType !== "log:unsubscribe") {
+      // ৩. সাধারণ মেসেজ বা মিডিয়া ক্যাশ করা (message_unsend ছাড়া যেকোনো নরমাল মেসেজ)
+      if (type !== "message_unsend") {
         if (body || (attachments && attachments.length > 0)) {
-          global.logMessage.set(messageID, { 
-            msgBody: body || "", 
+          global.logMessage.set(messageID, {
+            msgBody: body || "",
             attachment: attachments || [],
-            senderID: senderID 
+            senderID: senderID
           });
         }
         return;
       }
 
-      // ৪. মেসেজ বা মিডিয়া আনসেন্ট হলে হ্যান্ডেল করা
-      if (type === "message_unsend" || logMessageType === "log:unsubscribe") {
+      // ৪. মেসেজ বা মিডিয়া আনসেন্ট (message_unsend) হলে হ্যান্ডেল করা
+      if (type === "message_unsend") {
         const msg = global.logMessage.get(messageID);
         if (!msg) return;
 
+        // বট নিজের ডিলিট করা মেসেজ রিসেন্ড করবে না
         if (msg.senderID === api.getCurrentUserID()) return;
 
         let userName = "Member";
@@ -76,16 +76,19 @@ module.exports = {
           }
         } catch (e) {}
 
-        // যদি কোনো অ্যাটাচমেন্ট (ছবি/ভিডিও/অডিও/ফাইল) না থাকে, শুধু টেক্সট হয়
+        // যদি কোনো অ্যাটাচমেন্ট না থাকে, শুধু টেক্সট পাঠাবে
         if (!msg.attachment || msg.attachment.length === 0) {
-          return api.sendMessage(
+          api.sendMessage(
             `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗗𝗲𝗹𝗲𝘁𝗲𝗱 𝗠𝗲𝘀𝘀𝗮𝗴𝗲 𝗗𝗲𝘁𝗲𝗰𝘁𝗲𝗱!\n» 👤 𝗡𝗮𝗺𝗲: ${userName}\n» 🗑️ 𝗠𝗲𝘀𝘀𝗮𝗴𝗲: ${msg.msgBody || "Empty Message"}\n───────────────\n» 🛑 𝗕𝗮𝗻𝗱𝗵𝗼 𝗸𝗼𝗿𝘁𝗲 𝗹𝗶𝗸𝗵𝘂𝗻: resend off\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
             threadID
           );
+          global.logMessage.delete(messageID);
+          return;
         }
 
-        // যদি ছবি, ভিডিও, অডিও বা যেকোনো ফাইল থাকে
+        // যদি ছবি, ভিডিও, অডিও বা যেকোনো মিডিয়া ফাইল থাকে
         let attachmentsList = [];
+        let filePaths = [];
         let count = 0;
 
         for (const file of msg.attachment) {
@@ -94,38 +97,58 @@ module.exports = {
             const fileUrl = file.url || file.previewUrl || file.playableUrl;
             if (!fileUrl) continue;
 
-            const ext = fileUrl.split(".").pop().split("?")[0] || "jpg";
+            // ফাইল এক্সটেনশন ঠিক করা
+            let ext = "jpg";
+            if (file.type === "photo") ext = "jpg";
+            else if (file.type === "video") ext = "mp4";
+            else if (file.type === "audio") ext = "mp3";
+            else if (file.type === "animated_image") ext = "gif";
+            else {
+              const urlExt = fileUrl.split(".").pop().split("?")[0];
+              if (urlExt && urlExt.length <= 4) ext = urlExt;
+            }
+
             const cacheDir = path.join(__dirname, "cache");
             if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
-            
+
             const filePath = path.join(cacheDir, `resend_${Date.now()}_${count}.${ext}`);
-            const fileData = (await axios.get(fileUrl, { responseType: "arraybuffer", timeout: 15000 })).data;
-            fs.writeFileSync(filePath, Buffer.from(fileData));
+            const response = await axios.get(fileUrl, { responseType: "arraybuffer", timeout: 15000 });
+            fs.writeFileSync(filePath, Buffer.from(response.data));
+
             attachmentsList.push(fs.createReadStream(filePath));
+            filePaths.push(filePath);
           } catch (err) {}
         }
 
+        // ক্যাশ ফাইল মুছে ফেলার হেল্পার ফাংশন
+        const cleanUpFiles = () => {
+          filePaths.forEach((p) => {
+            try {
+              if (fs.existsSync(p)) fs.unlinkSync(p);
+            } catch (e) {}
+          });
+        };
+
+        // মিডিয়া ডাউনলোড ব্যর্থ হলে শুধু মেসেজ টেক্সট পাঠাবে
         if (attachmentsList.length === 0) {
-          return api.sendMessage(
+          api.sendMessage(
             `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗗𝗲𝗹𝗲𝘁𝗲𝗱 𝗠𝗲𝘀𝘀𝗮𝗴𝗲 𝗗𝗲𝘁𝗲𝗰𝘁𝗲𝗱!\n» 👤 𝗡𝗮𝗺𝗲: ${userName}\n» 🗑️ 𝗠𝗲𝘀𝘀𝗮𝗴𝗲: ${msg.msgBody || "Media File"}\n───────────────\n» 🛑 𝗕𝗮𝗻𝗱𝗵𝗼 𝗸𝗼𝗿𝘁𝗲 𝗹𝗶𝗸𝗵𝘂𝗻: resend off\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
             threadID
           );
+          global.logMessage.delete(messageID);
+          return;
         }
 
-        return api.sendMessage(
+        // মিডিয়া ফাইলসহ মেসেজ রিসেন্ড করা
+        api.sendMessage(
           {
-            body: `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗗𝗲𝗹𝗲𝘁𝗲𝗱 𝗠𝗲𝘀𝘀𝗮𝗴𝗲 & 𝗙𝗶𝗹𝗲𝘀!\n» 👤 𝗡𝗮𝗺𝗲: ${userName}\n» 🗑️ 𝗥𝗲𝗺𝗼𝘃𝗲𝗱 𝗖𝗼𝗻𝘁𝗲𝗻𝘁\n───────────────\n» 🛑 𝗕𝗮𝗻𝗱𝗵𝗼 𝗸𝗼𝗿𝘁𝗲 𝗹𝗶𝗸𝗵𝘂𝗻: resend off\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
+            body: `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ⚠️ 𝗗𝗲𝗹𝗲𝘁𝗲𝗱 𝗠𝗲𝘀𝘀𝗮𝗴𝗲 & 𝗙𝗶𝗹𝗲𝘀!\n» 👤 𝗡𝗮𝗺𝗲: ${userName}\n» 🗑️ 𝗥𝗲𝗺𝗼𝘃𝗲𝗱 𝗖𝗼𝗻𝘁𝗲𝗻𝘁: ${msg.msgBody || "Media File"}\n───────────────\n» 🛑 𝗕𝗮𝗻𝗱𝗵𝗼 𝗸𝗼𝗿𝘁𝗲 𝗹𝗶𝗸𝗵𝘂𝗻: resend off\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
             attachment: attachmentsList
           },
           threadID,
-          () => {
-            attachmentsList.forEach(stream => {
-              try {
-                if (stream.path && fs.existsSync(stream.path)) {
-                  fs.unlinkSync(stream.path);
-                }
-              } catch (e) {}
-            });
+          (err) => {
+            cleanUpFiles();
+            global.logMessage.delete(messageID);
           }
         );
       }
@@ -134,7 +157,7 @@ module.exports = {
     }
   },
 
-  onStart: async function ({ api, event, args, threadsData, usersData }) {
+  onStart: async function ({ api, event, args, threadsData }) {
     const { threadID, messageID, senderID } = event;
     const action = args[0] ? args[0].toLowerCase() : "";
 
@@ -150,7 +173,7 @@ module.exports = {
       }
 
       // বট এডমিন আইডি লিস্ট চেক
-      const adminList = global.config.ADMINBOT || [];
+      const adminList = global.config.ADMINBOT || global.config.NDH || [];
       if (!adminList.includes(senderID)) {
         return api.sendMessage(
           `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ❌ এই কমান্ডটি শুধু বট এডমিনের জন্য!\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
@@ -164,21 +187,8 @@ module.exports = {
         await threadsData.set("global_resend_status", { status: turnOn });
       } catch (e) {}
 
-      // সব গ্রুপে মেসেজ পাঠানো
-      try {
-        const allThreads = await api.getThreadList(100, null, ["INBOX"]);
-        for (const thread of allThreads) {
-          if (thread.isGroup && thread.threadID !== threadID) {
-            await api.sendMessage(
-              `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» 📢 গ্লোবাল নোটিশ:\n» 🔄 𝗥𝗲𝘀𝗲𝗻𝗱 𝗠𝗼𝗱𝗲 (All): ${turnOn ? "𝗢𝗡 🟢" : "𝗢𝗙𝗙 🔴"}\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
-              thread.threadID
-            );
-          }
-        }
-      } catch (err) {}
-
       return api.sendMessage(
-        `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ✅ সফলভাবে সমস্ত গ্রুপের রিসেন্ড মোড ${turnOn ? "অন" : "অফ"} করা হয়েছে!\n» 🔄 𝗥𝗲𝘀𝗲𝗻𝗱 𝗠𝗼𝗱𝗲: ${turnOn ? "𝗢𝗡 🟢" : "𝗢𝗙𝗙 🔴"}\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
+        `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ✅ সফলভাবে সমস্ত গ্রুপের রিসেন্ড মোড ${turnOn ? "অন" : "অফ"} করা হয়েছে!\n» 🔄 𝗥𝗲𝘀𝗲𝗻𝗱 𝗠𝗼𝗱𝗲: ${turnOn ? "𝗢𝗡 🟢" : "𝗢𝗙𝗙 🔴"}\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
         threadID,
         messageID
       );
@@ -188,7 +198,7 @@ module.exports = {
     if (action === "on" || action === "off") {
       let threadData = {};
       try {
-        threadData = await threadsData.get(threadID) || {};
+        threadData = (await threadsData.get(threadID)) || {};
       } catch (e) {}
 
       const turnOn = action === "on";
@@ -205,10 +215,10 @@ module.exports = {
       );
     }
 
-    // ৭. গাইড বা স্ট্যাটাস মেসেজ (যদি শুধু 'resend' লেখে)
-    let currentThreadData = {};
+  
+   let currentThreadData = {};
     try {
-      currentThreadData = await threadsData.get(threadID) || {};
+      currentThreadData = (await threadsData.get(threadID)) || {};
     } catch (e) {}
 
     const groupStatus = currentThreadData.resend !== false ? "𝗢𝗡 🟢" : "𝗢𝗙𝗙 🔴";
