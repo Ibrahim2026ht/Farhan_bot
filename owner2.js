@@ -229,11 +229,11 @@ module.exports = {
         // BOT NAME
         ctx.fillStyle = "#ffd700";
         ctx.font = "bold 38px Sans";
-        ctx.fillText("👑𝆠፝ 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑", 390, 660);
+        ctx.fillText("👑𝆠፝ HT-FARHAN 👑", 390, 660);
 
         ctx.fillStyle = "#ffffff";
         ctx.font = "bold 30px Sans";
-        ctx.fillText("👑 𝐍𝐈𝐉𝐇𝐔𝐌 𝐁𝐎𝐓 👑", 430, 715);
+        ctx.fillText("👑 HT-FARHAN 👑", 430, 715);
 
         // SMALL STATUS BOXES
         const boxY = 790;
@@ -333,7 +333,7 @@ module.exports = {
 
         api.sendMessage(
           {
-            body: "🫵তোর আব্বু👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑",
+            body: "🫵তোমার আব্বু👑𝆠፝HT-FARHAN 👑",
             attachment: fs.createReadStream(cachePath)
           },
           event.threadID,
