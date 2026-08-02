@@ -24,7 +24,7 @@ const isFriend = userInfo[senderID].isFriend;
 
 if (isFriend) {
 return api.sendMessage(
-`╭━〔 💎 𝗦𝗜𝗬𝗔𝗠 𝗕𝗢𝗧 〕━╮
+`╭━〔 💎 FARHAN 𝗕𝗢𝗧 〕━╮
 ┃ 🌸 হ্যালো ${name} !
 ┃ 🤝 তুমি আগেই আমার
 ┃ 💖 Friend List এ আছো
@@ -49,7 +49,7 @@ const senderRequest = listRequest.find(u => u.node.id == senderID);
 
 if (!senderRequest) {
 return api.sendMessage(
-`╭━〔 🌙 𝗦𝗜𝗬𝗔𝗠 𝗕𝗢𝗧 〕━╮
+`╭━〔 🌙 FARHAN 𝗕𝗢𝗧 〕━╮
 ┃ 🌸 হেই ${name} !
 ┃ ⚠️ তোমার কোনো
 ┃ 📥 Pending Request পাইনি
@@ -79,7 +79,7 @@ const res = await api.httpPost("https://www.facebook.com/api/graphql/", formAcce
 
 if (JSON.parse(res).errors) {
 return api.sendMessage(
-`╭━〔 💔 𝗦𝗜𝗬𝗔𝗠 𝗕𝗢𝗧 〕━╮
+`╭━〔 💔 FARHAN 𝗕𝗢𝗧 〕━╮
 ┃ 😔  সরি ${name}
 ┃ ⚠️ তোমার Request টি
 ┃ ❌ Accept করতে পারিনি
