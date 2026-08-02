@@ -82,7 +82,7 @@ async function startFunc({ api, event, args }) {
         try { api.unsendMessage(processing.messageID); } catch {}
 
         await api.sendMessage({
-            body: `» 👑 HT-FARHAN 👑\n───────────────\n» ✅ 𝗦𝘂𝗰𝗰𝗲𝘀𝘀: ${levelName}\n» 🌸 𝗡𝗼 𝗥𝗲𝗱 ✓ 𝗡𝗮𝘁𝘂𝗿𝗮𝗹 𝗦𝗸𝗶𝗻\n» 📐 ${img.width}x${img.height} ➔ ${canvas.width}x${canvas.height}\n» 👑 𝗔𝘂𝘁𝗵𝗼𝗿: 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
+            body: `» 👑 HT-FARHAN 👑\n───────────────\n» ✅ 𝗦𝘂𝗰𝗰𝗲𝘀𝘀: ${levelName}\n» 🌸 𝗡𝗼 𝗥𝗲𝗱 ✓ 𝗡𝗮𝘁𝘂𝗿𝗮𝗹 𝗦𝗸𝗶𝗻\n» 📐 ${img.width}x${img.height} ➔ ${canvas.width}x${canvas.height}\n» 👑 𝗔𝘂𝘁𝗵𝗼𝗿: HT-FARHAN\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
             attachment: fs.createReadStream(outPath)
         }, threadID, () => {
             try { fs.unlinkSync(inPath); } catch {}
