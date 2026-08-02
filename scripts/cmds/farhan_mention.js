@@ -24,8 +24,8 @@ module.exports = {
     // 👑 ADMINS
     const admins = [
       {
-        uid: "61568411310748",
-        names: ["@পি্ঁচ্চি্ঁ রি্ঁদ্ঁয়্ঁ ত্যা্ঁহ্ঁ"]
+        uid: "100077674384991",
+        names: ["@HT Farhan"]
       },
       {
         uid: "61584641872032",
