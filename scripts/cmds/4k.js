@@ -39,7 +39,7 @@ async function startFunc({ api, event, args }) {
 
     if (!imageUrl) {
         return api.sendMessage(
-            `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» 📸 𝗠𝗼𝗱𝗲𝗹: ${MODEL_VERSION}\n» 🌐 𝗔𝗣𝗜: api.badol.ai/v3/dslr\n\n» 📌 𝗨𝗦𝗔𝗚𝗘 𝗚𝗨𝗜𝗗𝗘:\n» ⚡ /4k = Auto Full HD 16K\n» ⚡ /4k 1 = Low HD\n» ⚡ /4k 2 = Natural HD\n» ⚡ /4k 3 = DSLR 4K\n» ⚡ /4k 4 = DSLR 8K\n» ⚡ /4k 5 = DSLR 16K Beautiful\n\n» 💡 𝗥𝗲𝗽𝗹𝘆 𝘁𝗼 𝗮 𝗽𝗵𝗼𝘁𝗼\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
+            `» 👑 HT-FARHAN 👑\n───────────────\n» 📸 𝗠𝗼𝗱𝗲𝗹: ${MODEL_VERSION}\n» 🌐 𝗔𝗣𝗜: api.badol.ai/v3/dslr\n\n» 📌 𝗨𝗦𝗔𝗚𝗘 𝗚𝗨𝗜𝗗𝗘:\n» ⚡ /4k = Auto Full HD 16K\n» ⚡ /4k 1 = Low HD\n» ⚡ /4k 2 = Natural HD\n» ⚡ /4k 3 = DSLR 4K\n» ⚡ /4k 4 = DSLR 8K\n» ⚡ /4k 5 = DSLR 16K Beautiful\n\n» 💡 𝗥𝗲𝗽𝗹𝘆 𝘁𝗼 𝗮 𝗽𝗵𝗼𝘁𝗼\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
             threadID,
             messageID
         );
@@ -50,7 +50,7 @@ async function startFunc({ api, event, args }) {
     let scale = level === "5" ? 2.8 : level === "4" ? 2.4 : level === "3" ? 2 : level === "2" ? 1.6 : 1.4;
 
     let processing = await api.sendMessage(
-        `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» 📸 𝗠𝗼𝗱𝗲: ${levelName}\n» 🌸 𝗡𝗼 𝗥𝗲𝗱 ✓ 𝗡𝗮𝘁𝘂𝗿𝗮𝗹 𝗦𝗸𝗶𝗻\n» ⏳ 𝗘𝗻𝗵𝗮𝗻𝗰𝗶𝗻𝗴...\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
+        `» 👑 HT-FARHAN 👑\n───────────────\n» 📸 𝗠𝗼𝗱𝗲: ${levelName}\n» 🌸 𝗡𝗼 𝗥𝗲𝗱 ✓ 𝗡𝗮𝘁𝘂𝗿𝗮𝗹 𝗦𝗸𝗶𝗻\n» ⏳ 𝗘𝗻𝗵𝗮𝗻𝗰𝗶𝗻𝗴...\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
         threadID
     );
 
@@ -82,7 +82,7 @@ async function startFunc({ api, event, args }) {
         try { api.unsendMessage(processing.messageID); } catch {}
 
         await api.sendMessage({
-            body: `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ✅ 𝗦𝘂𝗰𝗰𝗲𝘀𝘀: ${levelName}\n» 🌸 𝗡𝗼 𝗥𝗲𝗱 ✓ 𝗡𝗮𝘁𝘂𝗿𝗮𝗹 𝗦𝗸𝗶𝗻\n» 📐 ${img.width}x${img.height} ➔ ${canvas.width}x${canvas.height}\n» 👑 𝗔𝘂𝘁𝗵𝗼𝗿: 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
+            body: `» 👑 HT-FARHAN 👑\n───────────────\n» ✅ 𝗦𝘂𝗰𝗰𝗲𝘀𝘀: ${levelName}\n» 🌸 𝗡𝗼 𝗥𝗲𝗱 ✓ 𝗡𝗮𝘁𝘂𝗿𝗮𝗹 𝗦𝗸𝗶𝗻\n» 📐 ${img.width}x${img.height} ➔ ${canvas.width}x${canvas.height}\n» 👑 𝗔𝘂𝘁𝗵𝗼𝗿: 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
             attachment: fs.createReadStream(outPath)
         }, threadID, () => {
             try { fs.unlinkSync(inPath); } catch {}
@@ -92,7 +92,7 @@ async function startFunc({ api, event, args }) {
     } catch (e) {
         try { api.unsendMessage(processing.messageID); } catch {}
         return api.sendMessage(
-            `» 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n───────────────\n» ❌ 𝗘𝗿𝗿𝗼𝗿: ${e.message}\n» 🔄 𝗣𝗹𝗲𝗮𝘀𝗲 𝗧𝗿𝘆 𝗔𝗴𝗮𝗶𝗻 𝗟𝗮𝘁𝗲𝗿.\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
+            `» 👑 HT-FARHAN 👑\n───────────────\n» ❌ 𝗘𝗿𝗿𝗼𝗿: ${e.message}\n» 🔄 𝗣𝗹𝗲𝗮𝘀𝗲 𝗧𝗿𝘆 𝗔𝗴𝗮𝗶𝗻 𝗟𝗮𝘁𝗲𝗿.\n───────────────\n» 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
             threadID,
             messageID
         );
@@ -104,7 +104,7 @@ module.exports = {
         name: "4k",
         aliases: ["hd", "enhance", "remini", "hdr", "8k"],
         version: "6.0-DSLR-PRO",
-        author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
+        author: "HT-FARHAN",
         countDown: 10,
         role: 0,
         shortDescription: "DSLR Beautiful HD",
