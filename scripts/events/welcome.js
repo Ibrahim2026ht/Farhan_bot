@@ -150,7 +150,7 @@ module.exports = {
     config: {
         name: "welcome",
         version: "2.1",
-        author: "𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
+        author: "HT-FARHAN",
         category: "events"
     },
     onStart: async ({ threadsData, event, message, usersData, api }) => {
