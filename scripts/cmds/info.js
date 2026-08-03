@@ -31,7 +31,7 @@ module.exports = {
     const uptimeString = `${days}d ${hours}h ${minutes}m ${seconds}s`;
 
     const prefix = global.utils.getPrefix(event.threadID);
-    const groupName = event.threadName || "বলবো না 😁 সিয়াম বস কে প্রেম করাই দাও নাই😴";
+    const groupName = event.threadName || "বলবো না 😁 ফারহান বস কে প্রেম করাই দাও নাই😴";
 
     let botName = "Unknown Bot";
     try {
@@ -66,7 +66,7 @@ module.exports = {
     }
 
     return message.reply({
-      body: `  𝗢𝗪𝗡𝗘𝗥 𝗦𝗜𝗬𝗔𝗠-𝗛𝗔𝗦𝗔𝗡
+      body: `  𝗢𝗪𝗡𝗘𝗥 𝐇𝐓-𝐅𝐀𝐑𝐇𝐀𝐍
 ───────────────
 » 👑 𝗢𝗪𝗡𝗘𝗥: 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 » 🤖 𝗕𝗢𝗧 𝗡𝗔𝗠𝗘: ${botName}
@@ -88,8 +88,8 @@ module.exports = {
 » ⏳ 𝗨𝗣𝗧𝗜𝗠𝗘: ${uptimeString}
 ───────────────
 » 🌐 𝗙𝗔𝗖𝗘𝗕𝗢𝗢𝗞: https://www.facebook.com/profile.php?id=61591371186179
-» 💬 𝗧𝗜𝗞𝗧𝗢𝗞: siyam0132525
-» 📞 𝗪𝗛𝗔𝗧𝗦𝗔𝗣𝗣: +8801789138157`,
+» 💬 𝗧𝗜𝗞𝗧𝗢𝗞: @sybar_71_hackar
+» 📞 IMO: +8801734339892`,
       attachment: attachment
     });
   }
