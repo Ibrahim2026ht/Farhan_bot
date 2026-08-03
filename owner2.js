@@ -130,7 +130,7 @@ module.exports = {
         // TITLE
         ctx.fillStyle = "#ffffff";
         ctx.font = "bold 30px Sans";
-        ctx.fillText("👑 UDAY HASAN SIYAM🪯", 55, 100);
+        ctx.fillText("👑 UDAY 𝐇𝐓-𝐅𝐀𝐑𝐇𝐀𝐍🪯", 55, 100);
 
         // INFO BOX
         ctx.fillStyle = "#0d0d0d";
@@ -145,7 +145,7 @@ module.exports = {
           ["🕌 RELIGION", "ISLAM", "#00ff88"],
           ["🎂 AGE", "17+", "#ff66cc"],
           ["🚹 GENDER", "MALE", "#00bfff"],
-          ["🏠 ADDRESS", "KISHOREGANJ", "#ffaa00"],
+          ["🏠 ADDRESS", "Mymensingh", "#ffaa00"],
           ["🌍 COUNTRY", "BANGLADESH", "#00ffff"],
           ["💔 STATUS", "SINGLE", "#ff3333"],
           ["🧑‍🎓 WORK", "STUDENT", "#bb66ff"]
@@ -322,7 +322,7 @@ module.exports = {
 
         ctx.fillStyle = "#00ff00";
         ctx.font = "bold 36px Sans";
-        ctx.fillText("+8801789138157", 175, 1210);
+        ctx.fillText("+8801734339892", 175, 1210);
 
         encoder.addFrame(ctx);
       }
