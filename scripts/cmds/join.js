@@ -1,8 +1,8 @@
 // 😼 Author: 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 😼
 // ⚠️ নাম চেঞ্জ করলে ফাইল নষ্ট হয়ে যাবে ভাই 😾
 
-const AUTHOR_LOCK = "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍";
-const VISIBLE_AUTHOR = "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍";
+const AUTHOR_LOCK = "𝆠፝𝐇𝐓-𝐅𝐀𝐑𝐇𝐀𝐍";
+const VISIBLE_AUTHOR = "𝆠፝𝐇𝐓-𝐅𝐀𝐑𝐇𝐀𝐍";
 
 let designIndex = 0;
 
@@ -23,7 +23,7 @@ en: "{pn}"
 /* --- [ 🔐 FILE_CREATOR_INFORMATION ] ---
 
 🤖 BOT NAME: SIYAM BOT
-👤 OWNER: 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍
+👤 OWNER: 𝆠፝𝐇𝐓-𝐅𝐀𝐑𝐇𝐀𝐍
 📍 LOCATION: BANGLADESH
 
 --------------------------------------- */
