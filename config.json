@@ -14,9 +14,9 @@
   "language": "en",
   "notesLanguage": "change language using ISO 639-1 code",
 
-  "nickNameBot": "─꯭‎— [/]HT-FARHAN-𝐂𝐇𝐀𝐓-𝐁𝐎𝐓",
+  "nickNameBot": "─꯭‎— [,]HT-FARHAN-CHAT-BOT⚜️𓆪:)>𝟑",
 
-  "prefix": "/",
+  "prefix": ",",
 
   "adminOnly": {
     "enable": false,
@@ -24,8 +24,9 @@
   },
 
   "adminBot": [
-    "100077674384991"   
- ],
+    "100077674384991",
+    "100088489418721"
+  ],
 
   "security": {
     "enableOwnerLock": true,
@@ -37,15 +38,15 @@
   "reactUnsend": {
     "enable": true,
     "onlyAdmin": true,
-    "emojis": ["🥵", "😾", "🫦"],
+    "emojis": ["🥵", "😾"],
     "notes": "If enable = true, bot will unsend any message reacted with these emojis. If onlyAdmin = true, only adminBot IDs can trigger it."
   },
 
   "whiteListMode": {
     "enable": false,
     "whiteListIds": [
-      
-      "100077674384991"
+      "100077674384991",
+      "100088489418721"
     ],
     "notes": "If enabled, only IDs in whiteListIds can use the bot."
   },
