@@ -1,369 +1,351 @@
-const { getTime } = global.utils;
+const fs = require("fs-extra");
+const path = require("path");
+
+// Database file location
+const DATA_FILE = path.join(process.cwd(), "database", "json", "warn.json");
+
+// Fast in-memory cache for warnings database
+let dbCache = null;
+
+// Load database into memory
+function loadData() {
+    if (dbCache) return dbCache;
+    try {
+        if (!fs.existsSync(DATA_FILE)) {
+            fs.ensureFileSync(DATA_FILE);
+            fs.writeJsonSync(DATA_FILE, { settings: {}, users: {} }, { spaces: 4 });
+        }
+        dbCache = fs.readJsonSync(DATA_FILE);
+    } catch (e) {
+        dbCache = { settings: {}, users: {} };
+    }
+    return dbCache;
+}
+
+// Debounced async write to disk for high performance
+let saveTimeout = null;
+function saveData() {
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        try {
+            fs.ensureFileSync(DATA_FILE);
+            fs.writeJsonSync(DATA_FILE, dbCache, { spaces: 4 });
+        } catch (e) {
+            console.error("Error saving warn.json:", e);
+        }
+    }, 1000);
+}
+
+// Editable BAD_WORDS array (Bangla & English)
+const BAD_WORDS = [
+    "বাল", "বালের", "চোদ", "চুদ", "চুদা", "চুদি", "চুদিনা", "চুদবি", 
+    "মাগি", "মাগীর", "মাগির", "খানকি", "খানকির", "ভোদা", "ভোদাই", 
+    "শুয়োর", "শুয়োরের", "হারামি", "কুত্তা", "নষ্ট", "লুচ্চা",
+    "fuck", "fucking", "motherfucker", "bitch", "shit", "asshole", 
+    "bastard", "cunt", "dick", "slut", "whore", "idiot"
+];
+
+// Memory tracker for spam, floods, and duplicate detection
+const userMessageTracker = new Map();
 
 module.exports = {
-	config: {
-		name: "warn",
-		version: "1.8",
-		author: "MR_FARHAN",
-		countDown: 5,
-		role: 0,
-		description: {
-			vi: "cảnh cáo thành viên trong nhóm, đủ 3 lần ban khỏi box",
-			en: "warn member in group, if they have 3 warns, they will be banned"
-		},
-		category: "box chat",
-		guide: {
-			vi: "   {pn} @tag <lý do>: dùng cảnh cáo thành viên"
-				+ "\n   {pn} list: xem danh sách những thành viên đã bị cảnh cáo"
-				+ "\n   {pn} listban: xem danh sách những thành viên đã bị cảnh cáo đủ 3 lần và bị ban khỏi box"
-				+ "\n   {pn} info [@tag | <uid> | reply | để trống]: xem thông tin cảnh cáo của người được tag hoặc uid hoặc bản thân"
-				+ "\n   {pn} unban [@tag | <uid> | reply | để trống]: gỡ ban thành viên, đồng thời gỡ tất cả cảnh cáo của thành viên đó"
-				+ "\n   {pn} unwarn [@tag | <uid> | reply | để trống] [<số thứ tự> | để trống]: gỡ cảnh cáo thành viên bằng uid và số thứ tự cảnh cáo, nếu để trống sẽ gỡ cảnh cáo cuối cùng"
-				+ "\n   {pn} reset: reset tất cả dữ liệu cảnh cáo"
-				+ "\n⚠️ Cần set quản trị viên cho bot để bot tự kick thành viên bị ban",
-			en: "   {pn} @tag <reason>: warn member"
-				+ "\n   {pn} list: view list of warned members"
-				+ "\n   {pn} listban: view list of banned members"
-				+ "\n   {pn} info [@tag | <uid> | reply | leave blank]: view warning information of tagged person or uid or yourself"
-				+ "\n   {pn} unban [@tag | <uid> | reply | leave blank]: unban member, at the same time remove all warnings of that member"
-				+ "\n   {pn} unwarn [@tag | <uid> | reply | leave blank] [<number> | leave blank]: remove warning of member by uid and number of warning, if leave blank will remove the last warning"
-				+ "\n   {pn} reset: reset all warn data"
-				+ "\n⚠️ You need to set admin for bot to auto kick banned members"
-		}
-	},
+    config: {
+        name: "warn",
+        aliases: ["warnings", "warning", "warnlist", "check"],
+        version: "2.5.0",
+        author: "GoatBot Developer",
+        countDown: 2,
+        role: 0,
+        shortDescription: "বাংলা অটো-মডারেশন ও ওয়ার্নিং সিস্টেম",
+        longDescription: "ইউজারদের ওয়ার্নিং দেওয়া, অটো-মডারেশন (স্প্যাম, গালি, ফেসবুক/টিকটক লিংক, রিপিট মেসেজ, অতিরিক্ত মেনশন) এবং ৩/৩ ওয়ার্নিং হলে অটো-কিক ফিচার।",
+        category: "group",
+        guide: {
+            bn: "📌 **ওয়ার্নিং কমান্ড সাহায্য নির্দেশিকা:**\n" +
+                "───────────────────────────\n" +
+                "• /warn @user [কারণ] - সদস্যকে ম্যানুয়ালি ওয়ার্নিং দিন\n" +
+                "• /warnings [@user] - নিজের বা উল্লেখ করা সদস্যের ওয়ার্নিং দেখুন\n" +
+                "• /warning [@user] - ওয়ার্নিং স্ট্যাটাস চেক করুন\n" +
+                "• /warnlist [@user] - সদস্যের ওয়ার্নিং তালিকা দেখুন\n" +
+                "• /check [@user] - সদস্যের ওয়ার্নিং রেকর্ড চেক করুন\n" +
+                "• /unwarn @user - সদস্যের ১টি ওয়ার্নিং কমিয়ে দিন\n" +
+                "• /warn on - গ্রুপে অটো-মডারেশন চালুকরণ\n" +
+                "• /warn off - গ্রুপে অটো-মডারেশন বন্ধকরণ\n" +
+                "───────────────────────────\n" +
+                "📌 **সম্ভাব্য ম্যানুয়াল বাংলা কারণসমূহ:**\n" +
+                "- গ্রুপে স্প্যাম করার কারণে\n" +
+                "- অশালীন ভাষা ব্যবহারের কারণে\n" +
+                "- অনুমতি ছাড়া Facebook/TikTok লিংক শেয়ার করার কারণে\n" +
+                "- বারবার একই মেসেজ পাঠানোর কারণে\n" +
+                "- সদস্যদের হয়রানি করার কারণে\n" +
+                "- অতিরিক্ত মেনশন করার কারণে\n" +
+                "- গ্রুপের নিয়ম ভঙ্গ করার কারণে\n" +
+                "- আপত্তিকর ছবি বা ভিডিও শেয়ার করার কারণে\n" +
+                "- গ্রুপে অশান্তি সৃষ্টি করার কারণে\n" +
+                "- অ্যাডমিনের নির্দেশ অমান্য করার কারণে"
+        }
+    },
 
-	langs: {
-		vi: {
-			list: "Danh sách những thành viên bị cảnh cáo:\n%1\n\nĐể xem chi tiết những lần cảnh cáo hãy dùng lệnh \"%2warn info  [@tag | <uid> | để trống]\": để xem thông tin cảnh cáo của người được tag hoặc uid hoặc bản thân",
-			listBan: "Danh sách những thành viên bị cảnh cáo đủ 3 lần và ban khỏi box:\n%1",
-			listEmpty: "Nhóm bạn chưa có thành viên nào bị cảnh cáo",
-			listBanEmpty: "Nhóm bạn chưa có thành viên nào bị ban khỏi box",
-			invalidUid: "Vui lòng nhập uid hợp lệ của người bạn muốn xem thông tin",
-			noData: "Không có dữ liệu nào",
-			noPermission: "❌ Chỉ quản trị viên nhóm mới có thể unban thành viên bị ban khỏi box",
-			invalidUid2: "⚠️ Vui lòng nhập uid hợp lệ của người muốn gỡ ban",
-			notBanned: "⚠️ Người dùng mang id %1 chưa bị ban khỏi box của bạn",
-			unbanSuccess: "✅ Đã gỡ ban thành viên [%1 | %2], hiện tại người này có thể tham gia box chat của bạn",
-			noPermission2: "❌ Chỉ quản trị viên nhóm mới có thể gỡ cảnh cáo của thành viên trong nhóm",
-			invalidUid3: "⚠️ Vui lòng nhập uid hoặc tag người muốn gỡ cảnh cáo",
-			noData2: "⚠️ Người dùng mang id %1 chưa có dữ liệu cảnh cáo",
-			notEnoughWarn: "❌ Người dùng %1 chỉ có %2 lần cảnh cáo",
-			unwarnSuccess: "✅ Đã gỡ lần cảnh cáo thứ %1 của thành viên [%2 | %3] thành công",
-			noPermission3: "❌ Chỉ quản trị viên nhóm mới có thể reset dữ liệu cảnh cáo",
-			resetWarnSuccess: "✅ Đã reset dữ liệu cảnh cáo thành công",
-			noPermission4: "❌ Chỉ quản trị viên nhóm mới có thể cảnh cáo thành viên trong nhóm",
-			invalidUid4: "⚠️ Bạn cần phải tag hoặc phản hồi tin nhắn của người muốn cảnh cáo",
-			warnSuccess: "⚠️ Đã cảnh cáo thành viên %1 lần %2\n- Uid: %3\n- Lý do: %4\n- Date Time: %5\nThành viên này đã bị cảnh cáo đủ 3 lần và bị ban khỏi box, để gỡ ban hãy sử dụng lệnh \"%6warn unban <uid>\" (với uid là uid của người muốn gỡ ban)",
-			noPermission5: "⚠️ Bot cần quyền quản trị viên để kick thành viên bị ban",
-			warnSuccess2: "⚠️ Đã cảnh cáo thành viên %1 lần %2\n- Uid: %3\n- Lý do: %4\n- Date Time: %5\nNếu vi phạm %6 lần nữa người này sẽ bị ban khỏi box",
-			hasBanned: "⚠️ Thành viên sau đã bị cảnh cáo đủ 3 lần trước đó và bị ban khỏi box:\n%1",
-			failedKick: "⚠️ Đã xảy ra lỗi khi kick những thành viên sau:\n%1",
-			userNotInGroup: "⚠️ Người dùng \"%1\" hiện tại không có trong nhóm của bạn"
-		},
-		en: {
-			list: "List of members who have been warned:\n%1\n\nTo view the details of the warnings, use the \"%2warn info [@tag | <uid> | leave blank]\" command: to view the warning information of the tagged person or uid or yourself",
-			listBan: "List of members who have been warned 3 times and banned from the box:\n%1",
-			listEmpty: "Your group has no members who have been warned",
-			listBanEmpty: "Your group has no members banned from the box",
-			invalidUid: "Please enter a valid uid of the person you want to view information",
-			noData: "No data",
-			noPermission: "❌ Only group administrators can unban members banned from the box",
-			invalidUid2: "⚠️ Please enter a valid uid of the person you want to unban",
-			notBanned: "⚠️ The user with id %1 has not been banned from your box",
-			unbanSuccess: "✅ Successfully unbanned member [%1 | %2], currently this person can join your chat box",
-			noPermission2: "❌ Only group administrators can remove warnings from members in the group",
-			invalidUid3: "⚠️ Please enter a uid or tag the person you want to remove the warning",
-			noData2: "⚠️ The user with id %1 has no warning data",
-			notEnoughWarn: "❌ The user %1 only has %2 warnings",
-			unwarnSuccess: "✅ Successfully removed the %1 warning of member [%2 | %3]",
-			noPermission3: "❌ Only group administrators can reset warning data",
-			resetWarnSuccess: "✅ Successfully reset warning data",
-			noPermission4: "❌ Only group administrators can warn members in the group",
-			invalidUid4: "⚠️ You need to tag or reply to the message of the person you want to warn",
-			warnSuccess: "⚠️ Warned member %1 times %2\n- Uid: %3\n- Reason: %4\n- Date Time: %5\nThis member has been warned 3 times and banned from the box, to unban use the command \"%6warn unban <uid>\" (with uid is the uid of the person you want to unban)",
-			noPermission5: "⚠️ Bot needs administrator permissions to kick banned members",
-			warnSuccess2: "⚠️ Warned member %1 %2 times\n- Uid: %3\n- Reason: %4\n- Date Time: %5\nIf this person violates %6 more times, they will be banned from the box",
-			hasBanned: "⚠️ The following members have been warned 3 times before and banned from the box:\n%1",
-			failedKick: "⚠️ An error occurred when kicking the following members:\n%1",
-			userNotInGroup: "⚠️ The user \"%1\" is currently not in your group"
-		}
-	},
+    onStart: async function ({ api, event, args, message, role, usersData, threadsData }) {
+        const { threadID, senderID, mentions, body } = event;
+        const db = loadData();
 
-	onStart: async function ({ message, api, event, args, threadsData, usersData, prefix, role, getLang }) {
-		if (!args[0])
-			return message.SyntaxError();
-		const { threadID, senderID } = event;
-		const warnList = await threadsData.get(threadID, "data.warn", []);
+        if (!db.settings) db.settings = {};
+        if (!db.users) db.users = {};
+        if (db.settings[threadID] === undefined) db.settings[threadID] = true;
 
-		switch (args[0]) {
-			case "list": {
-				const msg = await Promise.all(warnList.map(async user => {
-					const { uid, list } = user;
-					const name = await usersData.getName(uid);
-					return `${name} (${uid}): ${list.length}`;
-				}));
-				message.reply(msg.length ? getLang("list", msg.join("\n"), prefix) : getLang("listEmpty"));
-				break;
-			}
-			case "listban": {
-				const result = (await Promise.all(warnList.map(async user => {
-					const { uid, list } = user;
-					if (list.length >= 3) {
-						const name = await usersData.getName(uid);
-						return `${name} (${uid})`;
-					}
-				}))).filter(item => item);
-				message.reply(result.length ? getLang("listBan", result.join("\n")) : getLang("listBanEmpty"));
-				break;
-			}
-			case "check":
-			case "info": {
-				let uids, msg = "";
-				if (Object.keys(event.mentions).length)
-					uids = Object.keys(event.mentions);
-				else if (event.messageReply?.senderID)
-					uids = [event.messageReply.senderID];
-				else if (args.slice(1).length)
-					uids = args.slice(1);
-				else
-					uids = [senderID];
+        const commandUsed = (body || "").trim().split(/\s+/)[0].replace(/^[/!.$]/, "").toLowerCase();
+        const subCommand = args[0] ? args[0].toLowerCase() : "";
 
-				if (!uids)
-					return message.reply(getLang("invalidUid"));
-				msg += (await Promise.all(uids.map(async uid => {
-					if (isNaN(uid))
-						return null;
-					const dataWarnOfUser = warnList.find(user => user.uid == uid);
-					let msg = `Uid: ${uid}`;
-					const userName = await usersData.getName(uid);
+        // Check if command is /unwarn (Handled separately)
+        if (commandUsed === "unwarn") {
+            return this.handleUnwarn({ api, event, args, message, role, usersData, db });
+        }
 
-					if (!dataWarnOfUser || dataWarnOfUser.list.length == 0)
-						msg += `\n  Name: ${userName}\n  ${getLang("noData")}`;
-					else {
-						msg += `\nName: ${userName}`
-							+ `\nWarn list:` + dataWarnOfUser.list.reduce((acc, warn) => {
-								const { dateTime, reason } = warn;
-								return acc + `\n  - Reason: ${reason}\n    Time: ${dateTime}`;
-							}, "");
-					}
-					return msg;
-				}))).filter(msg => msg).join("\n\n");
-				message.reply(msg);
-				break;
-			}
-			case "unban": {
-				if (role < 1)
-					return message.reply(getLang("noPermission"));
-				let uidUnban;
-				if (Object.keys(event.mentions).length)
-					uidUnban = Object.keys(event.mentions)[0];
-				else if (event.messageReply?.senderID)
-					uidUnban = event.messageReply.senderID;
-				else if (args.slice(1).length)
-					uidUnban = args.slice(1);
-				else
-					uidUnban = senderID;
+        // Check if command is /warnings, /warning, /warnlist, /check
+        if (["warnings", "warning", "warnlist", "check"].includes(commandUsed)) {
+            return this.handleCheck({ event, message, usersData, db });
+        }
 
-				if (!uidUnban || isNaN(uidUnban))
-					return message.reply(getLang("invalidUid2"));
+        // Subcommand: /warn on
+        if (subCommand === "on") {
+            if (role < 1) return message.reply("⚠️ শুধুমাত্র গ্রুপ অ্যাডমিন বা বট অ্যাডমিন অটো-মডারেশন চালু করতে পারবেন।");
+            db.settings[threadID] = true;
+            saveData();
+            return message.reply("🛡️ **অটো-মডারেশন সিস্টেম সক্রিয় করা হয়েছে**\n───────────────\nএখন থেকে স্প্যাম, গালিগালাজ, লিংক, বারবার একই মেসেজ ও অতিরিক্ত মেনশন করা স্বয়ংক্রিয়ভাবে চেক করা হবে।");
+        }
 
-				const index = warnList.findIndex(user => user.uid == uidUnban && user.list.length >= 3);
-				if (index === -1)
-					return message.reply(getLang("notBanned", uidUnban));
+        // Subcommand: /warn off
+        if (subCommand === "off") {
+            if (role < 1) return message.reply("⚠️ শুধুমাত্র গ্রুপ অ্যাডমিন বা বট অ্যাডমিন অটো-মডারেশন বন্ধ করতে পারবেন।");
+            db.settings[threadID] = false;
+            saveData();
+            return message.reply("⚠️ **অটো-মডারেশন সিস্টেম নিষ্ক্রিয় করা হয়েছে**\n───────────────\nএই গ্রুপের জন্য স্বয়ংক্রিয় নজরদারি বন্ধ করা হলো।");
+        }
 
-				warnList.splice(index, 1);
-				await threadsData.set(threadID, warnList, "data.warn");
-				const userName = await usersData.getName(uidUnban);
-				message.reply(getLang("unbanSuccess", uidUnban, userName));
-				break;
-			}
-			case "unwarn": {
-				if (role < 1)
-					return message.reply(getLang("noPermission2"));
-				let uid, num;
-				if (Object.keys(event.mentions)[0]) {
-					uid = Object.keys(event.mentions)[0];
-					num = args[args.length - 1];
-				}
-				else if (event.messageReply?.senderID) {
-					uid = event.messageReply.senderID;
-					num = args[1];
-				}
-				else {
-					uid = args[1];
-					num = parseInt(args[2]) - 1;
-				}
+        // Subcommand: /warn unwarn @user
+        if (subCommand === "unwarn") {
+            return this.handleUnwarn({ api, event, args, message, role, usersData, db });
+        }
 
-				if (isNaN(uid))
-					return message.reply(getLang("invalidUid3"));
+        // Subcommand: /warn ings / ing / list / check / warning
+        if (["ings", "ing", "list", "check", "warning"].includes(subCommand)) {
+            return this.handleCheck({ event, message, usersData, db });
+        }
 
-				const dataWarnOfUser = warnList.find(u => u.uid == uid);
-				if (!dataWarnOfUser?.list.length)
-					return message.reply(getLang("noData2", uid));
+        // Subcommand: Manual Warn -> /warn @user <reason>
+        if (role < 1) return message.reply("⚠️ শুধুমাত্র গ্রুপ অ্যাডমিনরা কাউকে ম্যানুয়ালি ওয়ার্নিং দিতে পারবেন।");
 
-				if (isNaN(num))
-					num = dataWarnOfUser.list.length - 1;
+        const mentionIDs = Object.keys(mentions || {});
+        if (mentionIDs.length === 0) {
+            return message.reply(
+                "⚠️ **ওয়ার্নিং কম্যান্ড ব্যবহার পদ্ধতি:**\n───────────────\n" +
+                "• /warn @user [কারণ] - সদস্যকে ওয়ার্নিং দিন\n" +
+                "• /warnings / /check [@user] - ওয়ার্নিং চেক করুন\n" +
+                "• /unwarn @user - ওয়ার্নিং কমিয়ে দিন\n" +
+                "• /warn on | off - অটো-মডারেশন চালু/বন্ধ করুন"
+            );
+        }
 
-				const userName = await usersData.getName(uid);
-				if (num > dataWarnOfUser.list.length)
-					return message.reply(getLang("notEnoughWarn", userName, dataWarnOfUser.list.length));
+        const targetID = mentionIDs[0];
+        if (targetID === senderID) return message.reply("❌ আপনি নিজেকে ওয়ার্নিং দিতে পারবেন না।");
 
-				dataWarnOfUser.list.splice(parseInt(num), 1);
-				if (!dataWarnOfUser.list.length)
-					warnList.splice(warnList.findIndex(u => u.uid == uid), 1);
-				await threadsData.set(threadID, warnList, "data.warn");
-				message.reply(getLang("unwarnSuccess", num + 1, uid, userName));
-				break;
-			}
-			case "reset": {
-				if (role < 1)
-					return message.reply(getLang("noPermission3"));
-				await threadsData.set(threadID, [], "data.warn");
-				message.reply(getLang("resetWarnSuccess"));
-				break;
-			}
-			default: {
-				if (role < 1)
-					return message.reply(getLang("noPermission4"));
-				let reason, uid;
-				if (event.messageReply) {
-					uid = event.messageReply.senderID;
-					reason = args.join(" ").trim();
-				}
-				else if (Object.keys(event.mentions)[0]) {
-					uid = Object.keys(event.mentions)[0];
-					reason = args.join(" ").replace(event.mentions[uid], "").trim();
-				}
-				else {
-					return message.reply(getLang("invalidUid4"));
-				}
-				if (!reason)
-					reason = "No reason";
-				const dataWarnOfUser = warnList.find(item => item.uid == uid);
-				const dateTime = getTime("DD/MM/YYYY hh:mm:ss");
-				if (!dataWarnOfUser)
-					warnList.push({
-						uid,
-						list: [{ reason, dateTime, warnBy: senderID }]
-					});
-				else
-					dataWarnOfUser.list.push({ reason, dateTime, warnBy: senderID });
+        // Immunity Verification (Group Admin, Bot Admin, Bot Owner)
+        const isTargetImmune = await this.checkImmunity(api, threadID, targetID, threadsData);
+        if (isTargetImmune) {
+            return message.reply("🛡️ গ্রুপের অ্যাডমিন, বট অ্যাডমিন বা বট ওনারদের ওয়ার্নিং দেওয়া সম্ভব নয়।");
+        }
 
-				await threadsData.set(threadID, warnList, "data.warn");
+        let customReason = args.join(" ").replace(mentions[targetID] || "", "").replace(args[0], "").trim();
+        if (!customReason) customReason = "গ্রুপের নিয়ম ভঙ্গ করার কারণে";
 
-				const times = dataWarnOfUser?.list.length ?? 1;
+        return await issueWarning(api, message, threadID, targetID, customReason, usersData);
+    },
 
-				const userName = await usersData.getName(uid);
-				if (times >= 3) {
-					message.reply(getLang("warnSuccess", userName, times, uid, reason, dateTime, prefix), () => {
-						api.removeUserFromGroup(uid, threadID, async (err) => {
-							if (err) {
-								const members = await threadsData.get(event.threadID, "members");
-								if (members.find(item => item.userID == uid)?.inGroup) // check if user is still in group
-									return message.reply(getLang("userNotInGroup", userName));
-								else
-									return message.reply(getLang("noPermission5"), (e, info) => {
-										const { onEvent } = global.GoatBot;
-										onEvent.push({
-											messageID: info.messageID,
-											onStart: async ({ event }) => {
-												if (event.logMessageType === "log:thread-admins" && event.logMessageData.ADMIN_EVENT == "add_admin") {
-													const { TARGET_ID } = event.logMessageData;
-													if (TARGET_ID == api.getCurrentUserID()) {
-														const warnList = await threadsData.get(event.threadID, "data.warn", []);
-														if ((warnList.find(user => user.uid == uid)?.list.length ?? 0) <= 3)
-															global.GoatBot.onEvent = onEvent.filter(item => item.messageID != info.messageID);
-														else
-															api.removeUserFromGroup(uid, event.threadID, () => global.GoatBot.onEvent = onEvent.filter(item => item.messageID != info.messageID));
-													}
-												}
-											}
-										});
-									});
-							}
-						});
-					});
-				}
-				else
-					message.reply(getLang("warnSuccess2", userName, times, uid, reason, dateTime, 3 - (times)));
-			}
-		}
-	},
+    onChat: async function ({ api, event, message, role, usersData, threadsData }) {
+        const { threadID, senderID, body, mentions, messageID } = event;
+        if (!body || senderID === api.getCurrentUserID()) return;
 
-	onEvent: async ({ event, threadsData, usersData, message, api, getLang }) => {
-		const { logMessageType, logMessageData } = event;
-		if (logMessageType === "log:subscribe") {
-			return async () => {
-				const { data, adminIDs } = await threadsData.get(event.threadID);
-				const warnList = data.warn || [];
-				if (!warnList.length)
-					return;
-				const { addedParticipants } = logMessageData;
-				const hasBanned = [];
+        const db = loadData();
+        if (db.settings && db.settings[threadID] === false) return; // Disabled in thread
 
-				for (const user of addedParticipants) {
-					const { userFbId: uid } = user;
-					const dataWarnOfUser = warnList.find(item => item.uid == uid);
-					if (!dataWarnOfUser)
-						continue;
-					const { list } = dataWarnOfUser;
-					if (list.length >= 3) {
-						const userName = await usersData.getName(uid);
-						hasBanned.push({
-							uid,
-							name: userName
-						});
-					}
-				}
+        // Global Bot Admin / Bot Owner Immunity via GoatBot Role system
+        if (role >= 1) return;
 
-				if (hasBanned.length) {
-					await message.send(getLang("hasBanned", hasBanned.map(item => `  - ${item.name} (uid: ${item.uid})`).join("\n")));
-					if (!adminIDs.includes(api.getCurrentUserID()))
-						message.reply(getLang("noPermission5"), (e, info) => {
-							const { onEvent } = global.GoatBot;
-							onEvent.push({
-								messageID: info.messageID,
-								onStart: async ({ event }) => {
-									if (
-										event.logMessageType === "log:thread-admins"
-										&& event.logMessageData.ADMIN_EVENT == "add_admin"
-										&& event.logMessageData.TARGET_ID == api.getCurrentUserID()
-									) {
-										const threadData = await threadsData.get(event.threadID);
-										const warnList = threadData.data.warn;
-										const members = threadData.members;
-										removeUsers(hasBanned, warnList, api, event, message, getLang, members);
-										global.GoatBot.onEvent = onEvent.filter(item => item.messageID != info.messageID);
-									}
-								}
-							});
-						});
-					else {
-						const members = await threadsData.get(event.threadID, "members");
-						removeUsers(hasBanned, warnList, api, event, message, getLang, members);
-					}
-				}
-			};
-		}
-	}
+        // Group Admin Immunity Check
+        const isSenderImmune = await this.checkImmunity(api, threadID, senderID, threadsData);
+        if (isSenderImmune) return;
+
+        const now = Date.now();
+        const trackerKey = `${threadID}_${senderID}`;
+        if (!userMessageTracker.has(trackerKey)) {
+            userMessageTracker.set(trackerKey, { timestamps: [], lastMsg: "" });
+        }
+        const userTrack = userMessageTracker.get(trackerKey);
+
+        let detectedReason = null;
+
+        // 1. Facebook & TikTok & HTTP/HTTPS Link Detection
+        const linkRegex = /(https?:\/\/[^\s]+)|(facebook\.com\/[^\s]+)|(fb\.com\/[^\s]+)|(fb\.watch\/[^\s]+)|(m\.me\/[^\s]+)|(tiktok\.com\/[^\s]+)|(vm\.tiktok\.com\/[^\s]+)|(vt\.tiktok\.com\/[^\s]+)/i;
+        if (linkRegex.test(body)) {
+            detectedReason = "অনুমতি ছাড়া Facebook/TikTok লিংক শেয়ার করার কারণে";
+        }
+
+        // 2. Bad Words Detection (Bangla & English)
+        if (!detectedReason) {
+            const normalizedBody = body.toLowerCase();
+            const hasBadWord = BAD_WORDS.some(word => {
+                const regex = new RegExp(`(?:^|\\s|\\b)${word}(?:$|\\s|\\b)`, "i");
+                return regex.test(normalizedBody) || normalizedBody.includes(word);
+            });
+
+            if (hasBadWord) {
+                detectedReason = "অশালীন ভাষা ব্যবহারের কারণে";
+            }
+        }
+
+        // 3. Mention Spam (5 or more mentions in one message)
+        if (!detectedReason && mentions && Object.keys(mentions).length >= 5) {
+            detectedReason = "অতিরিক্ত মেনশন করার কারণে";
+        }
+
+        // 4. Repeated Message Detection
+        if (!detectedReason) {
+            if (userTrack.lastMsg === body.trim() && body.trim().length > 3) {
+                detectedReason = "বারবার একই মেসেজ পাঠানোর কারণে";
+            }
+            userTrack.lastMsg = body.trim();
+        }
+
+        // 5. Spam / Flood Message Detection (5 or more messages in 4 seconds)
+        if (!detectedReason) {
+            userTrack.timestamps.push(now);
+            userTrack.timestamps = userTrack.timestamps.filter(t => now - t < 4000);
+            if (userTrack.timestamps.length >= 5) {
+                detectedReason = "গ্রুপে স্প্যাম করার কারণে";
+                userTrack.timestamps = [];
+            }
+        }
+
+        // If violation is detected
+        if (detectedReason) {
+            // Delete offending message if possible
+            try {
+                if (messageID) api.unsendMessage(messageID);
+            } catch (e) {}
+
+            await issueWarning(api, message, threadID, senderID, detectedReason, usersData);
+        }
+    },
+
+    // Unwarn Functionality
+    handleUnwarn: async function ({ api, event, args, message, role, usersData, db }) {
+        const { threadID, mentions } = event;
+        if (role < 1) return message.reply("⚠️ শুধুমাত্র গ্রুপ অ্যাডমিন বা বট অ্যাডমিন ওয়ার্নিং সরাতে পারবেন।");
+
+        const targetID = Object.keys(mentions || {})[0] || args[1];
+        if (!targetID) return message.reply("⚠️ অনুগ্রহ করে যাকে unwarn করতে চান তাকে মেনশন (@user) করুন।");
+
+        const key = `${threadID}_${targetID}`;
+        if (!db.users[key] || db.users[key].count === 0) {
+            const name = await usersData.getName(targetID);
+            return message.reply(`ℹ️ **${name}** এর কোনো সক্রিয় ওয়ার্নিং নেই।`);
+        }
+
+        db.users[key].count -= 1;
+        if (db.users[key].count <= 0) {
+            delete db.users[key];
+        } else {
+            db.users[key].reasons.pop();
+        }
+        saveData();
+
+        const name = await usersData.getName(targetID);
+        const remaining = db.users[key] ? db.users[key].count : 0;
+        return message.reply(`✅ **ওয়ার্নিং কমানো হয়েছে**\n───────────────\n👤 সদস্য: **${name}**\n📊 বর্তমান ওয়ার্নিং: **${remaining}/3**`);
+    },
+
+    // Check Warning History Logic
+    handleCheck: async function ({ event, message, usersData, db }) {
+        const { threadID, senderID, mentions } = event;
+        let targetID = Object.keys(mentions || {})[0] || senderID;
+        const key = `${threadID}_${targetID}`;
+        const name = await usersData.getName(targetID);
+        const record = db.users[key] || { count: 0, reasons: [] };
+
+        let text = `📜 **ওয়ার্নিং ইতিহাস**\n───────────────\n👤 সদস্য: **${name}**\n⚠️ বর্তমান অবস্থান: **${record.count}/3**\n`;
+        if (record.reasons && record.reasons.length > 0) {
+            text += `\n📌 **কারণসমূহ:**\n` + record.reasons.map((r, i) => ` ${i + 1}. ${r}`).join("\n");
+        } else {
+            text += `\n✨ এই সদস্যের কোনো ওয়ার্নিং রেকর্ড নেই!`;
+        }
+        return message.reply(text);
+    },
+
+    // Complete Immunity Verification (Group Admin, Bot Admin, Bot Owner)
+    checkImmunity: async function (api, threadID, targetID, threadsData) {
+        try {
+            const globalConfig = global.GoatBot?.config || {};
+            const adminBot = globalConfig.adminBot || [];
+            const ownerID = globalConfig.ownerID;
+
+            // Check if Bot Owner
+            if (Array.isArray(ownerID) ? ownerID.includes(targetID) : ownerID === targetID) {
+                return true;
+            }
+
+            // Check if Bot Admin
+            if (adminBot.includes(targetID)) {
+                return true;
+            }
+
+            // Check if Group Admin
+            const threadInfo = await threadsData.get(threadID);
+            const adminIDs = (threadInfo.adminIDs || []).map(item => item.id || item);
+            return adminIDs.includes(targetID);
+        } catch (e) {
+            return false;
+        }
+    }
 };
 
-async function removeUsers(hasBanned, warnList, api, event, message, getLang, members) {
-	const failed = [];
-	for (const user of hasBanned) {
-		if (members.find(item => item.userID == user.uid)?.inGroup) { // check if user is still in group
-			try {
-				if (warnList.find(item => item.uid == user.uid)?.list.length ?? 0 >= 3)
-					await api.removeUserFromGroup(user.uid, event.threadID);
-			}
-			catch (e) {
-				failed.push({
-					uid: user.uid,
-					name: user.name
-				});
-			}
-		}
-	}
-	if (failed.length)
-		message.reply(getLang("failedKick", failed.map(item => `  - ${item.name} (uid: ${item.uid})`).join("\n")));
+// Core Warning Handler
+async function issueWarning(api, message, threadID, targetID, reason, usersData) {
+    const db = loadData();
+    const key = `${threadID}_${targetID}`;
+
+    if (!db.users[key]) {
+        db.users[key] = { count: 0, reasons: [] };
+    }
+
+    db.users[key].count += 1;
+    db.users[key].reasons.push(reason);
+    const count = db.users[key].count;
+    saveData();
+
+    const name = await usersData.getName(targetID);
+
+    if (count >= 3) {
+        // Warning 3/3 notice before auto-kick
+        await message.reply({
+            body: `⚠️ গ্রুপ ওয়ার্নিং ⚠️\n\n👤 সদস্য: ${name}\n📌 কারণ: ${reason}\n⚠️ ওয়ার্নিং: 3/3\n\n🚫 সদস্য ৩/৩ ওয়ার্নিং সম্পূর্ণ করায় স্বয়ংক্রিয়ভাবে গ্রুপ থেকে সরিয়ে দেওয়া হয়েছে।`,
+            mentions: [{ tag: name, id: targetID }]
+        });
+
+        // Clear warning history after auto kick
+        delete db.users[key];
+        saveData();
+
+        // Perform auto kick
+        return api.removeUserFromGroup(targetID, threadID, (err) => {
+            if (err) {
+                message.reply("❌ সদস্যকে গ্রুপ থেকে সরানো যায়নি।\nঅনুগ্রহ করে বটকে গ্রুপ অ্যাডমিন করুন।");
+            }
+        });
+    } else {
+        return message.reply({
+            body: `⚠️ গ্রুপ ওয়ার্নিং ⚠️\n\n👤 সদস্য: ${name}\n📌 কারণ: ${reason}\n⚠️ ওয়ার্নিং: ${count}/3`,
+            mentions: [{ tag: name, id: targetID }]
+        });
+    }
 }
+
