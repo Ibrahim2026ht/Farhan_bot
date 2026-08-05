@@ -24,9 +24,8 @@
   },
 
   "adminBot": [
-    "100077674384991",
-    
-  ],
+    "100077674384991"   
+ ],
 
   "security": {
     "enableOwnerLock": true,
