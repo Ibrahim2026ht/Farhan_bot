@@ -158,7 +158,7 @@ module.exports = {
         let customReason = args.join(" ").replace(mentions[targetID] || "", "").replace(args[0], "").trim();
         if (!customReason) customReason = "গ্রুপের নিয়ম ভঙ্গ করার কারণে";
 
-        return await issueWarning(api, message, threadID, targetID, customReason, usersData);
+        return await issueWarning(api, message, threadID, targetID, customReason, usersData, body);
     },
 
     onChat: async function ({ api, event, message, role, usersData, threadsData }) {
@@ -233,7 +233,7 @@ module.exports = {
                 if (messageID) api.unsendMessage(messageID);
             } catch (e) {}
 
-            await issueWarning(api, message, threadID, senderID, detectedReason, usersData);
+            await issueWarning(api, message, threadID, senderID, detectedReason, usersData, body);
         }
     },
 
@@ -309,7 +309,7 @@ module.exports = {
 };
 
 // Core Warning Handler
-async function issueWarning(api, message, threadID, targetID, reason, usersData) {
+async function issueWarning(api, message, threadID, targetID, reason, usersData, body = "N/A") {
     const db = loadData();
     const key = `${threadID}_${targetID}`;
 
@@ -326,8 +326,24 @@ async function issueWarning(api, message, threadID, targetID, reason, usersData)
 
     if (count >= 3) {
         // Warning 3/3 notice before auto-kick
+        const kickMsg = 
+`╔════════════════════════════════════╗
+          👑 HT FARHAN 👑
+╚════════════════════════════════════╝
+
+╔════════════════════════════════════╗
+║        🚫 অটো কিক সিস্টেম 🚫
+╠════════════════════════════════════╣
+║ 👤 সদস্য : ${name}
+║ 📌 কারণ : ${reason}
+║ ⚠️ ওয়ার্নিং : 3/3
+╠════════════════════════════════════╣
+║ ✅ সদস্যকে স্বয়ংক্রিয়ভাবে
+║ গ্রুপ থেকে সরিয়ে দেওয়া হয়েছে।
+╚════════════════════════════════════╝`;
+
         await message.reply({
-            body: `⚠️ গ্রুপ ওয়ার্নিং ⚠️\n\n👤 সদস্য: ${name}\n📌 কারণ: ${reason}\n⚠️ ওয়ার্নিং: 3/3\n\n🚫 সদস্য ৩/৩ ওয়ার্নিং সম্পূর্ণ করায় স্বয়ংক্রিয়ভাবে গ্রুপ থেকে সরিয়ে দেওয়া হয়েছে।`,
+            body: kickMsg,
             mentions: [{ tag: name, id: targetID }]
         });
 
@@ -342,10 +358,27 @@ async function issueWarning(api, message, threadID, targetID, reason, usersData)
             }
         });
     } else {
+        const warnMsg = 
+`╔════════════════════════════════════╗
+          👑 HT FARHAN 👑
+╚════════════════════════════════════╝
+
+╔════════════════════════════════════╗
+║        ⚠️ গ্রুপ ওয়ার্নিং ⚠️
+╠════════════════════════════════════╣
+║ 👤 সদস্য : ${name}
+║ 📌 কারণ : ${reason}
+║ 📝 মেসেজ : ${body}
+║ 📊 ওয়ার্নিং : ${count}/3
+╠════════════════════════════════════╣
+║ 🚨 ৩/৩ ওয়ার্নিং পূর্ণ হলে
+║ সদস্যকে স্বয়ংক্রিয়ভাবে
+║ গ্রুপ থেকে সরিয়ে দেওয়া হবে।
+╚════════════════════════════════════╝`;
+
         return message.reply({
-            body: `⚠️ গ্রুপ ওয়ার্নিং ⚠️\n\n👤 সদস্য: ${name}\n📌 কারণ: ${reason}\n⚠️ ওয়ার্নিং: ${count}/3`,
+            body: warnMsg,
             mentions: [{ tag: name, id: targetID }]
         });
     }
 }
-
