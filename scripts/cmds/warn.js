@@ -246,16 +246,18 @@ module.exports = {
         if (!targetID) return message.reply("⚠️ অনুগ্রহ করে যাকে unwarn করতে চান তাকে মেনশন (@user) করুন।");
 
         const key = `${threadID}_${targetID}`;
-        if (!db.users[key] || db.users[key].count === 0) {
+        if (!db.users || !db.users[key] || db.users[key].count <= 0) {
             const name = await usersData.getName(targetID);
             return message.reply(`ℹ️ **${name}** এর কোনো সক্রিয় ওয়ার্নিং নেই।`);
         }
 
         db.users[key].count -= 1;
+        if (db.users[key].reasons && db.users[key].reasons.length > 0) {
+            db.users[key].reasons.pop();
+        }
+
         if (db.users[key].count <= 0) {
             delete db.users[key];
-        } else {
-            db.users[key].reasons.pop();
         }
         saveData();
 
@@ -270,7 +272,7 @@ module.exports = {
         let targetID = Object.keys(mentions || {})[0] || senderID;
         const key = `${threadID}_${targetID}`;
         const name = await usersData.getName(targetID);
-        const record = db.users[key] || { count: 0, reasons: [] };
+        const record = (db.users && db.users[key]) ? db.users[key] : { count: 0, reasons: [] };
 
         let text = `📜 **ওয়ার্নিং ইতিহাস**\n───────────────\n👤 সদস্য: **${name}**\n⚠️ বর্তমান অবস্থান: **${record.count}/3**\n`;
         if (record.reasons && record.reasons.length > 0) {
@@ -308,18 +310,25 @@ module.exports = {
     }
 };
 
-// Core Warning Handler
+// Core Warning Handler (Ensures Strict Per-User Tracking via Unique Key)
 async function issueWarning(api, message, threadID, targetID, reason, usersData, body = "N/A") {
     const db = loadData();
-    const key = `${threadID}_${targetID}`;
+    if (!db.users) db.users = {};
 
-    if (!db.users[key]) {
-        db.users[key] = { count: 0, reasons: [] };
+    // Unique key per thread and per user
+    const userKey = `${threadID}_${targetID}`;
+
+    if (!db.users[userKey]) {
+        db.users[userKey] = { count: 0, reasons: [] };
     }
 
-    db.users[key].count += 1;
-    db.users[key].reasons.push(reason);
-    const count = db.users[key].count;
+    db.users[userKey].count += 1;
+    if (!Array.isArray(db.users[userKey].reasons)) {
+        db.users[userKey].reasons = [];
+    }
+    db.users[userKey].reasons.push(reason);
+
+    const count = db.users[userKey].count;
     saveData();
 
     const name = await usersData.getName(targetID);
@@ -347,8 +356,8 @@ async function issueWarning(api, message, threadID, targetID, reason, usersData,
             mentions: [{ tag: name, id: targetID }]
         });
 
-        // Clear warning history after auto kick
-        delete db.users[key];
+        // Clear warning history for this target user after auto kick
+        delete db.users[userKey];
         saveData();
 
         // Perform auto kick
@@ -382,3 +391,4 @@ async function issueWarning(api, message, threadID, targetID, reason, usersData,
         });
     }
 }
+
