@@ -377,7 +377,6 @@ async function issueWarning(api, message, threadID, targetID, reason, usersData,
 ╠════════════════════════════════════╣
 ║ 👤 সদস্য : ${name}
 ║ 📌 কারণ : ${reason}
-║ 📝 মেসেজ : ${body}
 ║ 📊 ওয়ার্নিং : ${count}/3
 ╠════════════════════════════════════╣
 ║ 🚨 ৩/৩ ওয়ার্নিং পূর্ণ হলে
@@ -391,4 +390,3 @@ async function issueWarning(api, message, threadID, targetID, reason, usersData,
         });
     }
 }
-
