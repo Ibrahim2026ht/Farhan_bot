@@ -31,13 +31,13 @@ module.exports = {
 » 👥 𝗧𝗼𝘁𝗮𝗹 𝗨𝘀𝗲𝗿𝘀: ${allUsers.length.toLocaleString()}
 » 💬 𝗧𝗼𝘁𝗮𝗹 𝗚𝗿𝗼𝘂𝗽𝘀: ${allThreads.length.toLocaleString()}
 ───────────────
-» 👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍`;
+» 👑𝐇𝐓-𝐅𝐀𝐑𝐇𝐀𝐍𝆠`;
 
       api.sendMessage(msg, event.threadID, event.messageID);
     } catch (error) {
       console.error(error);
       api.sendMessage(
-        `───────────────\n» ❌ 𝗔𝗻 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰𝘂𝗿𝗿𝗲𝗱.\n───────────────\n» 👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍`,
+        `───────────────\n» ❌ 𝗔𝗻 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰𝘂𝗿𝗿𝗲𝗱.\n───────────────\n» 👑𝆠፝𝐇𝐓-𝐅𝐀𝐑𝐇𝐀𝐍`,
         event.threadID,
         event.messageID
       );
