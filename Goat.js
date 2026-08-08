@@ -185,8 +185,8 @@ const watchAndReloadConfig = (dir, type, prop, logName) => {
 	});
 };
 
-watchAndReloadConfig(dirConfigCommands, 'change', 'configCommands', 'CONFIG COMMANDS');
-watchAndReloadConfig(dirConfig, 'change', 'config', 'CONFIG');
+// watchAndReloadConfig(dirConfigCommands, 'change', 'configCommands', 'CONFIG COMMANDS');
+// watchAndReloadConfig(dirConfig, 'change', 'config', 'CONFIG');
 
 global.GoatBot.envGlobal = global.GoatBot.configCommands.envGlobal;
 global.GoatBot.envCommands = global.GoatBot.configCommands.envCommands;
