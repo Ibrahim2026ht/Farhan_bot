@@ -122,7 +122,7 @@ module.exports = {
 				const date = moment().tz("Asia/Dhaka").format("DD MMMM YYYY");
 
 				const msg = `
-👑  𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍  👑
+👑  𝆠𝐇𝐓-𝐅𝐀𝐑𝐇𝐀𝐍  👑
 
 𝆠፝𝐖𝐇𝐈𝐓𝐄 𝐋𝐈𝐒𝐓 𝐌𝐎𝐃𝐄 𝐄𝐍𝐀𝐁𝐋𝐄𝐃
 
@@ -148,7 +148,7 @@ module.exports = {
 				const date = moment().tz("Asia/Dhaka").format("DD MMMM YYYY");
 
 				const msg = `
-👑  𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍  👑
+👑  𝆠𝐇𝐓-𝐅𝐀𝐑𝐇𝐀𝐍  👑
 
 𝆠፝𝐖𝐇𝐈𝐓𝐄 𝐋𝐈𝐒𝐓 𝐌𝐎𝐃𝐄 𝐃𝐈𝐒𝐀𝐁𝐋𝐄𝐃
 
