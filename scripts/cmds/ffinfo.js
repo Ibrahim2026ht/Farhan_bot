@@ -1,177 +1,416 @@
 const axios = require("axios");
 
-  function toBold(text) {
-  if (!text) return "";
+function toBold(text) {
+  if (text === undefined || text === null) return "";
+
+  const normal =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  const bold =
+    "𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭" +
+    "𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇" +
+    "𝟬𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵";
+
   const str = String(text);
-  const normalChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  const boldChars   = "𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇𝟬𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵";
-  
   let result = "";
-  for (let i = 0; i < str.length; i++) {
-    const char = str[i];
-    const idx = normalChars.indexOf(char);
-    if (idx !== -1) {
-      result += boldChars.substr(idx * 2, 2);
+
+  for (const char of str) {
+    const index = normal.indexOf(char);
+
+    if (index !== -1) {
+      result += Array.from(bold)[index];
     } else {
       result += char;
     }
   }
+
   return result;
 }
 
-  function formatMessage(emoji, text) {
-  return `───────────────\n\n» ${emoji} ${text}\n\n───────────────\n\n» 👑 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍`;
+function formatMessage(emoji, text) {
+  return (
+    `───────────────\n\n` +
+    `» ${emoji} ${text}\n\n` +
+    `───────────────\n\n` +
+    `» 👑 𝆠𝐇𝐓-𝐅𝐀𝐑𝐇𝐀𝐍`
+  );
+}
+
+function get(obj, path, fallback = "N/A") {
+  try {
+    const value = path.split(".").reduce((o, k) => o?.[k], obj);
+
+    if (
+      value === undefined ||
+      value === null ||
+      value === ""
+    ) {
+      return fallback;
+    }
+
+    return value;
+  } catch {
+    return fallback;
+  }
 }
 
 module.exports = {
   config: {
     name: "ffinfo",
     aliases: ["freefireinfo", "ffstats"],
-    version: "2.1.0",
-    author: "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
+    version: "3.0.0",
+    author: "𝆠፝𝐇𝐓-𝐅𝐀𝐑𝐇𝐀𝐍",
     role: 0,
     premium: false,
-    description: "Show complete Free Fire player info with styled output",
+    description: "Show Free Fire player information",
     category: "game",
+
     guide: {
       en: "{p}ffinfo <uid>"
     }
   },
 
   onStart: async function ({ api, event, args }) {
+    let wait;
+
     try {
       const uid = args[0];
+
       if (!uid) {
-        const errorText = toBold("Please provide a Free Fire UID\n📌 Example: ffinfo 3060644273");
         return api.sendMessage(
-          formatMessage("⚠️", errorText),
+          formatMessage(
+            "⚠️",
+            toBold(
+              "Please provide a Free Fire UID\n\n" +
+              "📌 Example: ffinfo 11083503512"
+            )
+          ),
           event.threadID,
           event.messageID
         );
       }
 
-      const waitText = toBold("Fetching Free Fire player info...");
-      const wait = await api.sendMessage(
-        formatMessage("⏳", waitText),
+      // Loading message
+      wait = await api.sendMessage(
+        formatMessage(
+          "⏳",
+          toBold("Fetching Free Fire player info...")
+        ),
         event.threadID
       );
 
-      const url = `https://ff.mlbbai.com/info/?uid=${encodeURIComponent(uid)}`;
-      const res = await axios.get(url);
-      const data = res.data;
+      /*
+       * Games Kinbo API
+       * Endpoint:
+       * https://api.gameskinbo.com/ff-info/get
+       */
 
-      if (!data || !data.basicInfo) {
-        const failText = toBold("Failed to fetch player data. UID may be invalid.");
+      const API_KEY =
+        "0UL6tjcwm8N-bC6HUVQbxO8QDyWqEwCO2Gtf-q7qlJ4";
+
+      const url =
+        "https://api.gameskinbo.com/ff-info/get";
+
+      const response = await axios.get(url, {
+        params: {
+          uid: uid,
+          region: "BD"
+        },
+
+        headers: {
+          "x-api-key": API_KEY,
+          "Accept": "application/json"
+        },
+
+        timeout: 20000
+      });
+
+      const data = response.data;
+
+      // API error check
+      if (!data || data.error) {
+        const errorMessage = get(
+          data,
+          "error",
+          "Failed to fetch player information."
+        );
+
         return api.editMessage(
-          formatMessage("❌", failText),
+          formatMessage(
+            "❌",
+            toBold(String(errorMessage))
+          ),
           wait.messageID
         );
       }
 
-      const b = data.basicInfo;
-      const clan = data.clanBasicInfo || {};
-      const pet = data.petInfo || {};
-      const social = data.socialInfo || {};
-      const credit = data.creditScoreInfo || {};
-      const cap = data.captainBasicInfo || {};
+      /*
+       * Account Information
+       */
+      const account = data.AccountInfo || {};
 
-      // এপিআই থেকে আসা ডেটা বোল্ড করা
-      const name = toBold(b.nickname || "N/A");
-      const accountId = toBold(b.accountId || uid);
-      const region = toBold(b.region || "N/A");
-      const level = toBold(b.level || "N/A");
-      const likes = toBold(b.liked || 0);
-      const exp = toBold(b.exp || 0);
+      const name = get(
+        account,
+        "AccountName"
+      );
 
-      const rank = toBold(b.rank || "N/A");
-      const rPoints = toBold(b.rankingPoints || 0);
-      const csRank = toBold(b.csRank || "N/A");
-      const csPoints = toBold(b.csRankingPoints || 0);
+      const accountId = get(
+        account,
+        "AccountId",
+        uid
+      );
 
-      const maxRank = toBold(b.maxRank || "N/A");
-      const maxCsRank = toBold(b.csMaxRank || "N/A");
-      const elitePass = toBold(b.hasElitePass ? "Yes" : "No");
-      const badges = toBold(b.badgeCnt || 0);
+      const level = get(
+        account,
+        "AccountLevel"
+      );
 
-      const season = toBold(b.seasonId || "N/A");
-      const release = toBold(b.releaseVersion || "N/A");
-      const brShow = toBold(b.showBrRank ? "Yes" : "No");
-      const csShow = toBold(b.showCsRank ? "Yes" : "No");
-      const createTime = toBold(b.createAt ? new Date(b.createAt * 1000).toLocaleDateString("en-GB") : "N/A");
+      const exp = get(
+        account,
+        "AccountEXP",
+        0
+      );
 
-      const gName = toBold(clan.clanName || "None");
-      const gId = toBold(clan.clanId || "N/A");
-      const gLevel = toBold(clan.clanLevel || "N/A");
-      const gMembers = toBold(`${clan.memberNum || 0}/${clan.capacity || 0}`);
-      const gLeader = toBold(`${cap.nickname || "N/A"} (Lv.${cap.level || "?"})`);
+      const region = get(
+        account,
+        "AccountRegion",
+        "BD"
+      );
 
-      const pName = toBold(pet.name || "None");
-      const pLevel = toBold(pet.level || "N/A");
-      const pExp = toBold(pet.exp || 0);
-      const pSkin = toBold(pet.skinId || "N/A");
+      const likes = get(
+        account,
+        "AccountLikes",
+        0
+      );
 
-      const gender = toBold(social.gender?.replace("Gender_", "") || "N/A");
-      const language = toBold(social.language?.replace("Language_", "") || "N/A");
-      const signature = toBold(social.signature ? social.signature.replace(/\[B]|\[C]|\[ff[0-9a-f]+]/g, "") : "None");
+      const createTime = get(
+        account,
+        "AccountCreateTime",
+        null
+      );
 
-      const cScore = toBold(credit.creditScore || "N/A");
-      const cReward = toBold(credit.rewardState?.replace("REWARD_STATE_", "") || "N/A");
-      const cPeriod = toBold(credit.periodicSummaryEndTime ? new Date(credit.periodicSummaryEndTime * 1000).toLocaleDateString("en-GB") : "N/A");
+      const lastLogin = get(
+        account,
+        "AccountLastLogin",
+        null
+      );
 
-        const infoBody = `${toBold("𝐅𝐑𝐄𝐄 𝐅𝐈𝐑𝐄 𝐏𝐋𝐀𝐘𝐄𝐑 𝐈𝐍𝐅𝐎")}\n` +
+      const season = get(
+        account,
+        "AccountSeasonId"
+      );
+
+      /*
+       * Profile / Rank
+       */
+      const profile =
+        data.AccountProfileInfo || {};
+
+      const brMaxRank = get(
+        profile,
+        "BrMaxRank"
+      );
+
+      const brRankPoint = get(
+        profile,
+        "BrRankPoint",
+        0
+      );
+
+      const csMaxRank = get(
+        profile,
+        "CsMaxRank"
+      );
+
+      const csRankPoint = get(
+        profile,
+        "CsRankPoint",
+        0
+      );
+
+      /*
+       * Guild
+       */
+      const guild =
+        data.GuildInfo ||
+        data.ClanInfo ||
+        data.AccountGuildInfo ||
+        {};
+
+      const guildName =
+        get(guild, "GuildName",
+        get(guild, "ClanName", "None"));
+
+      const guildId =
+        get(guild, "GuildId",
+        get(guild, "ClanId", "N/A"));
+
+      const guildLevel =
+        get(guild, "GuildLevel",
+        get(guild, "ClanLevel", "N/A"));
+
+      const guildMembers =
+        get(guild, "GuildMemberCount",
+        get(guild, "MemberCount", "N/A"));
+
+      /*
+       * Captain / Guild Leader
+       */
+      const captain =
+        data.CaptainBasicInfo ||
+        data.GuildLeaderInfo ||
+        {};
+
+      const leaderName =
+        get(captain, "AccountName",
+        get(captain, "Nickname", "N/A"));
+
+      const leaderLevel =
+        get(captain, "AccountLevel",
+        get(captain, "Level", "N/A"));
+
+      /*
+       * Other information
+       */
+      const pet =
+        data.PetInfo ||
+        data.AccountPetInfo ||
+        {};
+
+      const petName =
+        get(pet, "PetName",
+        get(pet, "Name", "None"));
+
+      const petLevel =
+        get(pet, "PetLevel",
+        get(pet, "Level", "N/A"));
+
+      /*
+       * Format dates
+       */
+      function formatDate(timestamp) {
+        if (!timestamp) return "N/A";
+
+        const num = Number(timestamp);
+
+        if (Number.isNaN(num)) {
+          return String(timestamp);
+        }
+
+        const date = new Date(num * 1000);
+
+        if (Number.isNaN(date.getTime())) {
+          return "N/A";
+        }
+
+        return date.toLocaleDateString("en-GB");
+      }
+
+      /*
+       * Final message
+       */
+      const infoBody =
+        `${toBold("𝐅𝐑𝐄𝐄 𝐅𝐈𝐑𝐄 𝐏𝐋𝐀𝐘𝐄𝐑 𝐈𝐍𝐅𝐎")}\n` +
+        `━━━━━━━━━━━━━━━━━━\n\n` +
+
+        `${toBold("👤 𝐍𝐚𝐦𝐞:")} ${toBold(name)}\n` +
+        `${toBold("🆔 𝐔𝐈𝐃:")} ${toBold(accountId)}\n` +
+        `${toBold("🌍 𝐑𝐞𝐠𝐢𝐨𝐧:")} ${toBold(region)}\n` +
+        `${toBold("⭐ 𝐋𝐞𝐯𝐞𝐥:")} ${toBold(level)}\n` +
+        `${toBold("❤️ 𝐋𝐢𝐤𝐞𝐬:")} ${toBold(likes)}\n` +
+        `${toBold("📈 𝐄𝐱𝐩:")} ${toBold(exp)}\n\n` +
+
+        `${toBold("🏆 𝐁𝐑 𝐑𝐚𝐧𝐤:")} ${toBold(brMaxRank)}\n` +
+        `${toBold("🎯 𝐁𝐑 𝐑𝐚𝐧𝐤 𝐏𝐨𝐢𝐧𝐭𝐬:")} ${toBold(brRankPoint)}\n` +
+        `${toBold("⚔️ 𝐂𝐒 𝐑𝐚𝐧𝐤:")} ${toBold(csMaxRank)}\n` +
+        `${toBold("🎮 𝐂𝐒 𝐑𝐚𝐧𝐤 𝐏𝐨𝐢𝐧𝐭𝐬:")} ${toBold(csRankPoint)}\n\n` +
+
+        `${toBold("📅 𝐒𝐞𝐚𝐬𝐨𝐧:")} ${toBold(season)}\n` +
+        `${toBold("🕐 𝐀𝐜𝐜𝐨𝐮𝐧𝐭 𝐂𝐫𝐞𝐚𝐭𝐞:")} ${toBold(formatDate(createTime))}\n` +
+        `${toBold("🟢 𝐋𝐚𝐬𝐭 𝐋𝐨𝐠𝐢𝐧:")} ${toBold(formatDate(lastLogin))}\n\n` +
+
+        `${toBold("🛡️ 𝐆𝐔𝐈𝐋𝐃 𝐈𝐍𝐅𝐎")}\n` +
         `━━━━━━━━━━━━━━━━━━\n` +
-        `${toBold("👤 𝐍𝐚𝐦𝐞:")} ${name}\n` +
-        `${toBold("🆔 𝐔𝐢𝐝:")} ${accountId}\n` +
-        `${toBold("🌍 𝐑𝐞𝐠𝐢𝐨𝐧:")} ${region}\n` +
-        `${toBold("⭐ 𝐋𝐞𝐯𝐞𝐥:")} ${level}\n` +
-        `${toBold("❤️ 𝐋𝐢𝐤𝐞𝐬:")} ${likes}\n` +
-        `${toBold("📈 𝐄𝐱𝐩:")} ${exp}\n\n` +
-        `${toBold("🏆 𝐑𝐚𝐧𝐤:")} ${rank}\n` +
-        `${toBold("🎯 𝐑𝐚𝐧𝐤 𝐏oint𝐬:")} ${rPoints}\n` +
-        `${toBold("⚔️ 𝐂𝐬 𝐑𝐚𝐧𝐤:")} ${csRank}\n` +
-        `${toBold("🎮 𝐂𝐬 𝐏oint𝐬:")} ${csPoints}\n\n` +
-        `${toBold("👑 𝐌𝐚𝐱 𝐑𝐚𝐧𝐤:")} ${maxRank}\n` +
-        `${toBold("👑 𝐌𝐚𝐱 𝐂𝐬 𝐑𝐚𝐧𝐤:")} ${maxCsRank}\n` +
-        `${toBold("🎟️ 𝐄𝐥𝐢𝐭𝐞 𝐏𝐚𝐬𝐬:")} ${elitePass}\n` +
-        `${toBold("🏅 𝐁𝐚𝐝𝐠𝐞𝐬:")} ${badges}\n\n` +
-        `${toBold("📅 𝐒𝐞𝐚𝐬𝐨𝐧:")} ${season}\n` +
-        `${toBold("🛠️ 𝐑𝐞𝐥𝐞𝐚𝐬𝐞:")} ${release}\n` +
-        `${toBold("👁️ 𝐁𝐫 𝐑𝐚𝐧𝐤 𝐒𝐡𝐨𝐰:")} ${brShow}\n` +
-        `${toBold("👁️ 𝐂𝐬 𝐑𝐚𝐧𝐤 𝐒𝐡𝐨𝐰:")} ${csShow}\n` +
-        `${toBold("⏳ 𝐀𝐜𝐜𝐨𝐮𝐧𝐭 𝐂𝐫𝐞𝐚𝐭𝐞:")} ${createTime}\n\n` +
-        `${toBold("🛡️ 𝐆𝐮𝐢𝐥𝐝 𝐈𝐧𝐟𝐨")}\n` +
-        `━━━━━━━━━━━━━━━━\n` +
-        `${toBold("🏷️ 𝐆𝐮𝐢𝐥𝐝 𝐍𝐚𝐦𝐞:")} ${gName}\n` +
-        `${toBold("🆔 𝐆𝐮𝐢𝐥𝐝 𝐈𝐝:")} ${gId}\n` +
-        `${toBold("📊 𝐆𝐮𝐢𝐥𝐝 𝐋𝐞𝐯𝐞𝐥:")} ${gLevel}\n` +
-        `${toBold("👥 𝐌𝐞𝐦𝐛𝐞𝐫𝐬:")} ${gMembers}\n` +
-        `${toBold("👑 𝐆𝐮𝐢𝐥𝐝 𝐋𝐞𝐚𝐝𝐞𝐫:")} ${gLeader}\n\n` +
-        `${toBold("🐾 𝐏𝐞𝐭 𝐈𝐧𝐟𝐨")}\n` +
-        `━━━━━━━━━━━━━━━━\n` +
-        `${toBold("🐶 𝐍𝐚𝐦𝐞:")} ${pName}\n` +
-        `${toBold("📈 𝐋𝐞𝐯𝐞𝐥:")} ${pLevel}\n` +
-        `${toBold("⭐ 𝐄𝐱𝐩:")} ${pExp}\n` +
-        `${toBold("🎨 𝐒𝐤𝐢𝐧 𝐈𝐝:")} ${pSkin}\n\n` +
-        `${toBold("🌐 𝐒𝐨𝐜𝐢𝐚𝐥 𝐈𝐧𝐟𝐨")}\n` +
-        `━━━━━━━━━━━━━━━━\n` +
-        `${toBold("🚻 𝐆𝐞𝐧𝐝𝐞𝐫:")} ${gender}\n` +
-        `${toBold("🗣️ 𝐋𝐚𝐧𝐠𝐮𝐚𝐠𝐞:")} ${language}\n` +
-        `${toBold("✍️ 𝐒𝐢𝐠𝐧𝐚𝐭𝐮𝐫𝐞:")}\n${signature}\n\n` +
-        `${toBold("🛡️ 𝐂𝐫𝐞𝐝𝐢𝐭 𝐒𝐜𝐨𝐫𝐞")}\n` +
-        `━━━━━━━━━━━━━━━━\n` +
-        `${toBold("💯 𝐒𝐜𝐨𝐫𝐞:")} ${cScore}\n` +
-        `${toBold("🎁 𝐑𝐞𝐰𝐚𝐫𝐝:")} ${cReward}\n` +
-        `${toBold("📆 𝐏𝐞𝐫𝐢𝐨𝐝 𝐄𝐧𝐝:")} ${cPeriod}`;
 
-        await api.editMessage(
+        `${toBold("🏷️ 𝐆𝐮𝐢𝐥𝐝 𝐍𝐚𝐦𝐞:")} ${toBold(guildName)}\n` +
+        `${toBold("🆔 𝐆𝐮𝐢𝐥𝐝 𝐈𝐃:")} ${toBold(guildId)}\n` +
+        `${toBold("📊 𝐆𝐮𝐢𝐥𝐝 𝐋𝐞𝐯𝐞𝐥:")} ${toBold(guildLevel)}\n` +
+        `${toBold("👥 𝐌𝐞𝐦𝐛𝐞𝐫𝐬:")} ${toBold(guildMembers)}\n` +
+        `${toBold("👑 𝐋𝐞𝐚𝐝𝐞𝐫:")} ${toBold(leaderName)}\n` +
+        `${toBold("⭐ 𝐋𝐞𝐚𝐝𝐞𝐫 𝐋𝐞𝐯𝐞𝐥:")} ${toBold(leaderLevel)}\n\n` +
+
+        `${toBold("🐾 𝐏𝐄𝐓 𝐈𝐍𝐅𝐎")}\n` +
+        `━━━━━━━━━━━━━━━━━━\n` +
+
+        `${toBold("🐶 𝐏𝐞𝐭 𝐍𝐚𝐦𝐞:")} ${toBold(petName)}\n` +
+        `${toBold("📈 𝐏𝐞𝐭 𝐋𝐞𝐯𝐞𝐥:")} ${toBold(petLevel)}\n\n` +
+
+        `${toBold("━━━━━━━━━━━━━━━━━━")}\n` +
+        `${toBold("🎮 Games Kinbo API")}`;
+
+      await api.editMessage(
         formatMessage("🎮", infoBody),
         wait.messageID
       );
 
     } catch (err) {
-      const errText = toBold(`Error: ${err.message}`);
-      api.sendMessage(
-        formatMessage("❌", errText),
+
+      let errorText = "Something went wrong.";
+
+      if (err.response) {
+
+        const status = err.response.status;
+        const apiError =
+          err.response.data?.error ||
+          err.response.data?.message;
+
+        if (status === 401) {
+          errorText =
+            "Invalid API key or API key missing.";
+        }
+
+        else if (status === 402) {
+          errorText =
+            "Invalid Free Fire UID or server error.";
+        }
+
+        else if (status === 429) {
+          errorText =
+            "API limit/rate limit exceeded. Please try again later.";
+        }
+
+        else {
+          errorText =
+            apiError ||
+            `API Error: ${status}`;
+        }
+
+      } else if (err.code === "ECONNABORTED") {
+
+        errorText =
+          "API request timed out. Please try again.";
+
+      } else {
+
+        errorText =
+          err.message || "Unknown error.";
+      }
+
+      if (wait?.messageID) {
+        return api.editMessage(
+          formatMessage(
+            "❌",
+            toBold(errorText)
+          ),
+          wait.messageID
+        );
+      }
+
+      return api.sendMessage(
+        formatMessage(
+          "❌",
+          toBold(errorText)
+        ),
         event.threadID,
         event.messageID
       );
