@@ -87,7 +87,7 @@ module.exports = {
 » 📦 𝗖𝗢𝗠𝗠𝗔𝗡𝗗𝗦: ${totalCommands}
 » ⏳ 𝗨𝗣𝗧𝗜𝗠𝗘: ${uptimeString}
 ───────────────
-» 🌐 𝗙𝗔𝗖𝗘𝗕𝗢𝗢𝗞: https://www.facebook.com/profile.php?id=61591371186179
+» 🌐 𝗙𝗔𝗖𝗘𝗕𝗢𝗢𝗞: https://www.facebook.com/HT.FARHAN.VAI
 » 💬 𝗧𝗜𝗞𝗧𝗢𝗞: @sybar_71_hackar
 » 📞 IMO: +8801734339892`,
       attachment: attachment
